@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-service
+  namespace: apps
+  labels:
+    app.kubernetes.io/name: order-service
+    app.kubernetes.io/part-of: observability-platform
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: order-service
+  template:
+    metadata:
+      labels:
+        app: order-service
+        app.kubernetes.io/name: order-service
+        app.kubernetes.io/part-of: observability-platform
+    spec:
+      containers:
+        - name: order-service
+          # 싱글노드 클러스터에서 로컬 빌드 이미지 사용 시 imagePullPolicy: IfNotPresent 유지
+          image: order-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+          # 민감하지 않은 설정은 ConfigMap에서 주입
+          envFrom:
+            - configMapRef:
+                name: order-service-config
+          # DB 인증 정보는 Secret에서 주입
+          env:
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: order-service-secret
+                  key: DB_USERNAME
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: order-service-secret
+                  key: DB_PASSWORD
+          resources:
+            requests:
+              cpu: 250m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          # 파드가 살아있는지 확인 (실패 시 재시작)
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            failureThreshold: 3
+          # 파드가 트래픽을 받을 준비가 됐는지 확인
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 3
