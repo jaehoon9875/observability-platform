@@ -68,15 +68,17 @@ observability-platform/
 
 ## 기술 스택
 
-| 영역 | 기술 |
-|---|---|
-| Language & Framework | Java, Spring Boot, JPA/Hibernate |
-| Infrastructure | Kubernetes (kubeadm), ArgoCD |
-| Observability | Prometheus, Grafana, Loki, Alloy, Tempo |
-| Load Testing | k6 |
-| Scripting | Python, Shell Script |
-| Database | MySQL, Redis, Kafka |
-| CI/CD | ArgoCD, GitHub Actions |
+
+| 영역                   | 기술                                      |
+| -------------------- | --------------------------------------- |
+| Language & Framework | Java, Spring Boot, JPA/Hibernate        |
+| Infrastructure       | Kubernetes (kubeadm), ArgoCD            |
+| Observability        | Prometheus, Grafana, Loki, Alloy, Tempo |
+| Load Testing         | k6                                      |
+| Scripting            | Python, Shell Script                    |
+| Database             | MySQL, Redis, Kafka                     |
+| CI/CD                | ArgoCD, GitHub Actions                  |
+
 
 ## 각 디렉토리 상세 설명
 
@@ -140,3 +142,4 @@ k6로 작성한 부하 테스트 시나리오입니다.
 각 구성 요소를 구축하면서 겪은 문제 해결 과정과 장애 시뮬레이션 Post-mortem을 블로그에 기록합니다.
 
 - (링크 추가 예정)
+

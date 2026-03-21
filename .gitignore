@@ -23,5 +23,12 @@
 hs_err_pid*
 replay_pid*
 
+# Maven build output
+target/
+
+# IDE
+.vscode/
+.idea/
+
 # etc
 .DS_Store

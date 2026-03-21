@@ -5,7 +5,7 @@ This file provides guidance to Claude Code when working with code in this reposi
 ## Project Overview
 
 Kubernetes 기반 MSA 환경에서 Observability 플랫폼을 구축하는 포트폴리오 프로젝트.
-SRE 직무 지원용이며, 장애 시뮬레이션 → 탐지 → 대응 → 분석 자동화를 목표로 한다.
+장애 시뮬레이션 → 탐지 → 대응 → 분석 자동화를 목표로 한다.
 
 ## Tech Stack
 
@@ -58,3 +58,8 @@ scripts/           → 운영 자동화 스크립트
 - Helm values.yaml 수정 시 기존 주석을 삭제하지 않는다.
 - sample-apps의 각 서비스는 독립적으로 빌드/배포 가능해야 한다.
 - 환경변수는 하드코딩하지 않고 application.yml 또는 K8s ConfigMap/Secret으로 관리한다.
+- 요청하지 않은 리팩토링 금지.
+- 라이브러리 임의 추가 금지.
+- 파일 구조 임의 변경 금지.
+- 한번에 하나의 기능만 구현할 것.
+- 클래스와 메서드 단위로 한글 주석을 작성할 것.
