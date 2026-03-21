@@ -11,20 +11,25 @@
 Observability 스택의 관측 대상이 되는 첫 번째 MSA 앱을 만든다.
 
 ### 할 일
-1. Spring Boot 프로젝트 생성 (Maven, Java 17, Spring Boot 3.x)
+1. ✅ Spring Boot 프로젝트 생성 (Maven, Java 17, Spring Boot 3.x)
    - 의존성: Spring Web, Spring Data JPA, MySQL Driver, Spring Boot Actuator, Micrometer Prometheus, SpringDoc OpenAPI (Swagger)
-2. 기본 API 구현
+2. ✅ 기본 API 구현
    - `POST /api/orders` — 주문 생성
    - `GET /api/orders/{id}` — 주문 상세 조회
    - `GET /api/orders` — 주문 목록 조회
-3. 커스텀 비즈니스 메트릭 추가 (Micrometer)
+3. ✅ 커스텀 비즈니스 메트릭 추가 (Micrometer)
    - `order_processing_duration_seconds` — 주문 처리 소요 시간 (Timer)
    - `order_created_total` — 생성된 주문 수 (Counter)
    - `order_failed_total` — 실패한 주문 수 (Counter)
-4. Dockerfile 작성
-5. K8s 매니페스트 작성 (Deployment, Service, ConfigMap)
-6. 클러스터에 배포 후 Prometheus 스크랩 확인
-7. Grafana에서 커스텀 메트릭 조회 확인
+4. ✅ Dockerfile 작성 (멀티 스테이지 빌드, non-root 실행)
+5. ⬜ K8s 매니페스트 작성 (Deployment, Service, ConfigMap)
+6. ⬜ 클러스터에 배포 후 Prometheus 스크랩 확인
+7. ⬜ Grafana에서 커스텀 메트릭 조회 확인
+
+### 구현 메모
+- `local` 프로파일: H2 인메모리 DB로 외부 의존성 없이 실행 가능 (`-Dspring.profiles.active=local`)
+- `payment_call_duration_seconds` 메트릭도 함께 구현됨 (CLAUDE.md 설계 포함)
+- OTel Java Agent는 Dockerfile에 주석 처리됨 → 2단계에서 활성화
 
 ### 완료 기준
 - API가 정상 동작한다.
