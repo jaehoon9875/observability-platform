@@ -11,7 +11,9 @@ ArgoCD가 이 디렉토리를 감시하며, Git push 시 클러스터에 자동 
 - 네임스페이스 구성:
   - `monitoring` — Prometheus, Grafana, Loki, Tempo, Alloy
   - `argocd` — ArgoCD
-  - `observability-platform` — sample-apps(order, payment, notification) 및 의존 오픈소스(MySQL, Redis, Kafka) 배포
+  - `observability-platform` — sample-apps 및 의존 오픈소스 배포
+    - order-service, payment-service, notification-service
+    - MySQL, Kafka, Redis
 
 ## 디렉토리 구조
 
@@ -21,6 +23,9 @@ infra/
 ├── prometheus-stack/    → kube-prometheus-stack Helm values.yaml
 ├── loki/                → Loki Helm values.yaml
 ├── tempo/               → Tempo Helm values.yaml
+├── mysql/               → MySQL K8s 매니페스트 (mysql.yaml)
+├── kafka/               → Kafka K8s 매니페스트 (kafka.yaml, kafka-cr.yaml)
+├── redis/               → Redis Helm values.yaml
 └── sample-apps/         → Deployment, Service, ConfigMap 등 K8s 매니페스트
 ```
 
