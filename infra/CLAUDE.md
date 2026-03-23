@@ -44,8 +44,8 @@ infra/
 
 ## TODO
 
-- [ ] MySQL: 현재 K8s 매니페스트(`mysql.yaml`)로 임시 배포 중. 추후 Bitnami Helm chart 기반으로 전환 예정 (`values.yaml`, `values-custom.yaml` 준비 완료)
-- [ ] Kafka: 현재 K8s 매니페스트(`kafka.yaml`, `kafka-cr.yaml`)로 임시 배포 중. 추후 Bitnami Helm chart 기반으로 전환 예정 (`values.yaml`, `values-custom.yaml` 준비 완료)
+- [ ] MySQL: 현재 K8s 매니페스트(`mysql.yaml`)로 임시 배포 중. 추후 Helm chart 기반으로 전환 예정
+- [ ] Kafka: 현재 K8s 매니페스트(`kafka.yaml`, `kafka-cr.yaml`)로 임시 배포 중. 추후 Helm chart 기반으로 전환 예정
 
 ## 수정 시 주의사항
 
