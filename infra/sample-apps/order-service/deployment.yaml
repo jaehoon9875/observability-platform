@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: order-service
-  namespace: apps
+  namespace: observability-platform
   labels:
     app.kubernetes.io/name: order-service
     app.kubernetes.io/part-of: observability-platform

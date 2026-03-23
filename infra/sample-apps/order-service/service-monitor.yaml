@@ -8,10 +8,10 @@ metadata:
     app.kubernetes.io/name: order-service
     app.kubernetes.io/part-of: observability-platform
 spec:
-  # apps 네임스페이스에 있는 Service를 감시 대상으로 지정
+  # observability-platform 네임스페이스에 있는 Service를 감시 대상으로 지정
   namespaceSelector:
     matchNames:
-      - apps
+      - observability-platform
   # service.yaml의 labels.app 값과 반드시 일치해야 함
   selector:
     matchLabels:

@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: order-service
-  namespace: apps
+  namespace: observability-platform
   labels:
     # ServiceMonitor의 matchLabels와 반드시 일치해야 Prometheus 스크랩 대상으로 인식됨
     app: order-service

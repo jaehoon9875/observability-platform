@@ -11,7 +11,7 @@ ArgoCD가 이 디렉토리를 감시하며, Git push 시 클러스터에 자동 
 - 네임스페이스 구성:
   - `monitoring` — Prometheus, Grafana, Loki, Tempo, Alloy
   - `argocd` — ArgoCD
-  - `apps` — sample-apps 배포
+  - `observability-platform` — sample-apps(order, payment, notification) 및 의존 오픈소스(MySQL, Redis, Kafka) 배포
 
 ## 디렉토리 구조
 
