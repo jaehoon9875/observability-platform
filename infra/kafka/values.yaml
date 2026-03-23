@@ -1,0 +1,4 @@
+# bitnami/kafka
+# chart version: 29.3.14
+# app version: 3.7.1
+# helm show values bitnami/kafka --version 29.3.14 > values.yaml

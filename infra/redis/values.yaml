@@ -1,0 +1,4 @@
+# bitnami/redis
+# chart version: 19.6.4
+# app version: 7.2.5
+# helm show values bitnami/redis --version 19.6.4 > values.yaml
