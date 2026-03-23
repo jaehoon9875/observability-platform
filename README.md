@@ -69,15 +69,15 @@ observability-platform/
 ## 기술 스택
 
 
-| 영역                   | 기술                                      |
-| -------------------- | --------------------------------------- |
+| 영역                   | 기술                                        |
+| -------------------- | ----------------------------------------- |
 | Language & Framework | Java 17, Spring Boot 3.5.x, JPA/Hibernate |
-| Infrastructure       | Kubernetes (kubeadm), ArgoCD            |
-| Observability        | Prometheus, Grafana, Loki, Alloy, Tempo |
-| Load Testing         | k6                                      |
-| Scripting            | Python, Shell Script                    |
-| Database             | MySQL 8.0, Redis, Kafka 3.7.x           |
-| CI/CD                | ArgoCD, GitHub Actions                  |
+| Infrastructure       | Kubernetes (kubeadm), ArgoCD              |
+| Observability        | Prometheus, Grafana, Loki, Alloy, Tempo   |
+| Load Testing         | k6                                        |
+| Scripting            | Python, Shell Script                      |
+| Database             | MySQL 8.0, Redis, Kafka 3.7.x             |
+| CI/CD                | ArgoCD, GitHub Actions                    |
 
 
 ## 각 디렉토리 상세 설명
