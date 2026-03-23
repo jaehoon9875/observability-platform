@@ -11,6 +11,6 @@ data:
   DB_PORT: "3306"
   DB_NAME: "orderdb"
   KAFKA_BOOTSTRAP_SERVERS: "kafka:9092"
-  REDIS_HOST: "redis"
+  REDIS_HOST: "redis-master"
   REDIS_PORT: "6379"
   PAYMENT_SERVICE_URL: "http://payment-service"
