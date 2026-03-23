@@ -23,8 +23,8 @@ infra/
 ├── prometheus-stack/    → kube-prometheus-stack Helm values.yaml
 ├── loki/                → Loki Helm values.yaml
 ├── tempo/               → Tempo Helm values.yaml
-├── mysql/               → MySQL K8s 매니페스트 (mysql.yaml)
-├── kafka/               → Kafka K8s 매니페스트 (kafka.yaml, kafka-cr.yaml)
+├── mysql/               → MySQL K8s 매니페스트 (mysql.yaml) [TODO: Helm으로 전환 예정]
+├── kafka/               → Kafka K8s 매니페스트 (kafka.yaml, kafka-cr.yaml) [TODO: Helm으로 전환 예정]
 ├── redis/               → Redis Helm values.yaml
 └── sample-apps/         → Deployment, Service, ConfigMap 등 K8s 매니페스트
 ```
@@ -41,6 +41,11 @@ infra/
 - 각 ArgoCD Application은 이 레포의 특정 하위 경로를 source로 지정한다.
 - 동기화 정책: 자동 동기화 (auto-sync) + 자동 프루닝 (auto-prune)
 - 예시: `infra/prometheus-stack/` → monitoring 네임스페이스에 동기화
+
+## TODO
+
+- [ ] MySQL: 현재 K8s 매니페스트(`mysql.yaml`)로 임시 배포 중. 추후 Bitnami Helm chart 기반으로 전환 예정 (`values.yaml`, `values-custom.yaml` 준비 완료)
+- [ ] Kafka: 현재 K8s 매니페스트(`kafka.yaml`, `kafka-cr.yaml`)로 임시 배포 중. 추후 Bitnami Helm chart 기반으로 전환 예정 (`values.yaml`, `values-custom.yaml` 준비 완료)
 
 ## 수정 시 주의사항
 

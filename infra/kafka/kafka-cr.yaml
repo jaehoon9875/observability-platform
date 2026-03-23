@@ -1,0 +1,77 @@
+# Strimzi KRaft 모드 Kafka 클러스터 (싱글노드 테스트 환경)
+# KafkaNodePool: controller + broker 역할을 단일 노드에서 수행
+apiVersion: kafka.strimzi.io/v1
+kind: KafkaNodePool
+metadata:
+  name: controller
+  namespace: observability-platform
+  labels:
+    strimzi.io/cluster: kafka
+    app.kubernetes.io/name: kafka
+    app.kubernetes.io/part-of: observability-platform
+spec:
+  replicas: 1
+  # 싱글노드 환경: controller와 broker 역할을 하나의 파드에서 담당
+  roles:
+    - controller
+    - broker
+  storage:
+    type: persistent-claim
+    size: 5Gi
+    deleteClaim: false
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+---
+# Kafka 클러스터 정의
+# 생성되는 부트스트랩 서비스: kafka-kafka-bootstrap:9092
+apiVersion: kafka.strimzi.io/v1
+kind: Kafka
+metadata:
+  name: kafka
+  namespace: observability-platform
+  labels:
+    app.kubernetes.io/name: kafka
+    app.kubernetes.io/part-of: observability-platform
+  annotations:
+    # KRaft 모드 활성화 (ZooKeeper 불필요)
+    strimzi.io/node-pools: enabled
+    strimzi.io/kraft: enabled
+spec:
+  kafka:
+    version: 4.1.0
+    listeners:
+      # 클러스터 내부 평문 통신 (TLS 없음 — 테스트 환경)
+      - name: plain
+        port: 9092
+        type: internal
+        tls: false
+    config:
+      # 싱글노드이므로 replication factor는 모두 1
+      offsets.topic.replication.factor: 1
+      transaction.state.log.replication.factor: 1
+      transaction.state.log.min.isr: 1
+      default.replication.factor: 1
+      min.insync.replicas: 1
+  entityOperator:
+    # Topic / User 관리용 operator (각각 별도 컨테이너로 실행)
+    topicOperator:
+      resources:
+        requests:
+          cpu: 50m
+          memory: 128Mi
+        limits:
+          cpu: 200m
+          memory: 256Mi
+    userOperator:
+      resources:
+        requests:
+          cpu: 50m
+          memory: 128Mi
+        limits:
+          cpu: 200m
+          memory: 256Mi
