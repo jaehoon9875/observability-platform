@@ -1,5 +1,5 @@
 # --- Build Stage ---
-FROM eclipse-temurin:17-jdk-alpine AS build
+FROM eclipse-temurin:17-jdk AS build
 WORKDIR /workspace
 
 COPY mvnw .
@@ -12,11 +12,11 @@ COPY src src
 RUN ./mvnw package -DskipTests -q
 
 # --- Runtime Stage ---
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:17-jre
 WORKDIR /app
 
-# 보안: non-root 유저 실행
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+# 보안: non-root 유저 실행 (Debian 계열 문법)
+RUN groupadd -r appgroup && useradd -r -g appgroup appuser
 USER appuser
 
 # OTel Java Agent (2단계에서 분산 트레이싱 활성화)
