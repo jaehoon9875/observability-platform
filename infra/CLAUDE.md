@@ -77,3 +77,22 @@ spec:
 - values.yaml 수정 후에는 `helm template` 명령으로 렌더링 결과를 검증한다.
 - PVC가 포함된 리소스를 삭제할 때는 데이터 유실에 주의한다.
 - CRD(Custom Resource Definition)는 ArgoCD 동기화 전에 먼저 수동 설치해야 할 수 있다.
+
+## 알려진 이슈
+
+### Strimzi 0.51.0 — user-operator CrashLoopBackOff
+
+**증상**: `kafka-entity-operator` 파드 내 `user-operator` 컨테이너가 CrashLoopBackOff 상태.
+
+**원인**: Strimzi 0.51.0이 entity-operator Deployment를 생성할 때 `user-operator` 컨테이너에
+`STRIMZI_SECURITY_PROTOCOL: SSL`과 클러스터 CA 인증서 마운트를 누락하는 버그.
+Strimzi 내부 리스너(포트 9091)는 항상 SSL만 허용하므로 user-operator가 PLAINTEXT로
+연결을 시도하다 블로킹 → liveness probe(10s delay + 3회 실패)에 의해 반복 재시작됨.
+topic-operator는 정상 동작(SSL 설정 정상 주입됨).
+
+**참고**: `apiVersion: kafka.strimzi.io/v1`은 올바른 버전. `v1beta2`는 구버전이며
+현재 클러스터에서 두 버전 모두 서빙 중.
+
+**조치**: `kafka-cluster.yaml`의 `entityOperator`에서 `userOperator` 섹션 제거.
+현재 `KafkaUser` 리소스를 사용하지 않으므로 기능 영향 없음.
+KafkaUser 관리가 필요해지면 Strimzi 버전 업그레이드 후 재활성화 필요.

@@ -51,6 +51,11 @@ spec:
         port: 9092
         type: internal
         tls: false
+      # TLS 리스너 — entity-operator(topic/user operator)가 Kafka에 연결할 때 사용
+      - name: tls
+        port: 9093
+        type: internal
+        tls: true
     config:
       # 싱글노드이므로 replication factor는 모두 1
       offsets.topic.replication.factor: 1
@@ -59,16 +64,10 @@ spec:
       default.replication.factor: 1
       min.insync.replicas: 1
   entityOperator:
-    # Topic / User 관리용 operator (각각 별도 컨테이너로 실행)
+    # Topic 관리용 operator (KafkaUser 리소스 미사용으로 userOperator 제거)
+    # userOperator: Strimzi 0.51.0에서 SSL 설정 누락 버그로 CrashLoopBackOff 발생 확인
+    # KafkaUser 리소스 사용 시점에 재활성화 필요
     topicOperator:
-      resources:
-        requests:
-          cpu: 50m
-          memory: 128Mi
-        limits:
-          cpu: 200m
-          memory: 256Mi
-    userOperator:
       resources:
         requests:
           cpu: 50m
