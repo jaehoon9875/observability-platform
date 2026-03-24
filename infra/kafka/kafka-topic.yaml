@@ -1,0 +1,15 @@
+# KafkaTopic은 v1beta2 사용 (Strimzi 버전에 따라 deprecated 시 v1으로 변경)
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  name: my-topic
+  namespace: observability-platform
+  labels:
+    strimzi.io/cluster: kafka
+    app.kubernetes.io/name: kafka-topic
+    app.kubernetes.io/part-of: observability-platform
+spec:
+  partitions: 3
+  replicas: 1
+  config:
+    retention.ms: 604800000  # 메시지 보관 기간 7일

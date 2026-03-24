@@ -44,6 +44,7 @@ metadata:
 spec:
   kafka:
     version: 4.1.0
+    metadataVersion: 4.1-IV0   # KRaft 메타데이터 버전 (Kafka 버전에 맞게 설정)
     listeners:
       # 클러스터 내부 평문 통신 (TLS 없음 — 테스트 환경)
       - name: plain

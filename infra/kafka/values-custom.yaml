@@ -1,3 +1,0 @@
-# bitnami/kafka 커스텀 설정
-# chart version: 29.3.14 / app version: 3.7.1
-replicaCount: 1

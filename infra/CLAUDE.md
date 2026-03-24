@@ -24,7 +24,7 @@ infra/
 ├── loki/                → Loki Helm values.yaml
 ├── tempo/               → Tempo Helm values.yaml
 ├── mysql/               → MySQL K8s 매니페스트 (mysql.yaml) [TODO: Helm으로 전환 예정]
-├── kafka/               → Kafka K8s 매니페스트 (kafka.yaml, kafka-cr.yaml) [TODO: Helm으로 전환 예정]
+├── kafka/               → Kafka K8s 매니페스트 (kafka.yaml, kafka-cluster.yaml) [TODO: Helm으로 전환 예정]
 ├── redis/               → Redis Helm values.yaml
 └── sample-apps/         → Deployment, Service, ConfigMap 등 K8s 매니페스트
 ```
@@ -42,10 +42,35 @@ infra/
 - 동기화 정책: 자동 동기화 (auto-sync) + 자동 프루닝 (auto-prune)
 - 예시: `infra/prometheus-stack/` → monitoring 네임스페이스에 동기화
 
+### Kafka ArgoCD Application 예시
+
+현재는 `kubectl apply`로 수동 배포 중이며, 추후 ArgoCD Application으로 전환 예정.
+`infra/kafka/` 경로를 Application으로 등록하면 별도 코드 변경 없이 GitOps 방식으로 전환 가능.
+
+```yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kafka
+  namespace: argocd
+spec:
+  source:
+    repoURL: https://github.com/your-id/your-repo
+    path: infra/kafka
+    targetRevision: main
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: observability-platform
+  syncPolicy:
+    automated:
+      prune: true       # Git에서 삭제하면 클러스터에서도 삭제
+      selfHeal: true    # 클러스터 상태가 Git과 다르면 자동 복구
+```
+
 ## TODO
 
 - [ ] MySQL: 현재 K8s 매니페스트(`mysql.yaml`)로 임시 배포 중. 추후 Helm chart 기반으로 전환 예정
-- [ ] Kafka: 현재 K8s 매니페스트(`kafka.yaml`, `kafka-cr.yaml`)로 임시 배포 중. 추후 Helm chart 기반으로 전환 예정
+- [ ] Kafka: 현재 K8s 매니페스트(`kafka.yaml`, `kafka-cluster.yaml`)로 임시 배포 중. 추후 Helm chart 기반으로 전환 예정
 
 ## 수정 시 주의사항
 
