@@ -1,9 +1,0 @@
-# bitnami/mysql 커스텀 설정
-# chart version: 12.3.5 / app version: 8.4.5
-auth:
-  rootPassword: ""      # K8s Secret으로 관리 권장
-  database: orderdb
-
-primary:
-  persistence:
-    size: 8Gi

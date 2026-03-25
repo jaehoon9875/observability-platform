@@ -1,0 +1,24 @@
+apiVersion: mysql.oracle.com/v2
+kind: InnoDBCluster
+metadata:
+  name: mysql-cluster
+  namespace: observability-platform
+  labels:
+    app.kubernetes.io/name: mysql
+    app.kubernetes.io/part-of: observability-platform
+spec:
+  # Step 2에서 kubectl로 직접 생성한 Secret 참조
+  secretName: mysql-root-secret
+  # 싱글 노드 환경 — 운영 환경 권장은 3개 이상
+  instances: 1
+  # Router: 읽기/쓰기 분산 프록시
+  router:
+    instances: 1
+  # 자체 서명 TLS 인증서 자동 생성
+  tlsUseSelfSigned: true
+  datadirVolumeClaimTemplate:
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: 8Gi

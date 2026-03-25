@@ -1,4 +1,0 @@
-# bitnami/mysql
-# chart version: 12.3.5
-# app version: 8.4.5
-# helm show values bitnami/mysql --version 12.3.5 > values.yaml

@@ -23,7 +23,7 @@ infra/
 ├── prometheus-stack/    → kube-prometheus-stack Helm values.yaml
 ├── loki/                → Loki Helm values.yaml
 ├── tempo/               → Tempo Helm values.yaml
-├── mysql/               → MySQL K8s 매니페스트 (mysql.yaml) [TODO: Helm으로 전환 예정]
+├── mysql/               → MySQL Operator InnoDBCluster 매니페스트 (mysql-cluster.yaml)
 ├── kafka/               → Kafka K8s 매니페스트 (kafka.yaml, kafka-cluster.yaml) [TODO: Helm으로 전환 예정]
 ├── redis/               → Redis Helm values.yaml
 └── sample-apps/         → Deployment, Service, ConfigMap 등 K8s 매니페스트
@@ -69,7 +69,7 @@ spec:
 
 ## TODO
 
-- [ ] MySQL: 현재 K8s 매니페스트(`mysql.yaml`)로 임시 배포 중. 추후 Helm chart 기반으로 전환 예정
+- [ ] MySQL: MySQL Operator(`mysql-cluster.yaml`)로 전환 완료. 추후 ArgoCD Application으로 GitOps 연동 예정
 - [ ] Kafka: 현재 K8s 매니페스트(`kafka.yaml`, `kafka-cluster.yaml`)로 임시 배포 중. 추후 Helm chart 기반으로 전환 예정
 
 ## 수정 시 주의사항
