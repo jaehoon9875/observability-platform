@@ -69,8 +69,15 @@ spec:
 
 ## TODO
 
+### 인프라
+
 - [ ] MySQL: MySQL Operator(`mysql-cluster.yaml`)로 전환 완료. 추후 ArgoCD Application으로 GitOps 연동 예정
 - [ ] Kafka: 현재 K8s 매니페스트(`kafka.yaml`, `kafka-cluster.yaml`)로 임시 배포 중. 추후 Helm chart 기반으로 전환 예정
+
+### 문서 정리 (`docs/`)
+
+- [ ] `docs/mysql-setup.md`: 버전 정보 테이블(버전 미확정 항목) 및 중복 섹션 제거로 문서 간결화
+- [ ] `docs/kafka-setup.md`: Strimzi 공식 예시 README 참조 링크 추가 — [strimzi-kafka-operator/examples/kafka/README.md](https://github.com/strimzi/strimzi-kafka-operator/blob/main/examples/kafka/README.md)
 
 ## 수정 시 주의사항
 
