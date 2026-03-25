@@ -7,10 +7,10 @@ metadata:
     app.kubernetes.io/name: order-service
     app.kubernetes.io/part-of: observability-platform
 data:
-  DB_HOST: "mysql"
+  DB_HOST: "mysql-cluster"
   DB_PORT: "3306"
   DB_NAME: "orderdb"
-  KAFKA_BOOTSTRAP_SERVERS: "kafka:9092"
+  KAFKA_BOOTSTRAP_SERVERS: "kafka-kafka-bootstrap:9092"
   REDIS_HOST: "redis-master"
   REDIS_PORT: "6379"
   PAYMENT_SERVICE_URL: "http://payment-service"
