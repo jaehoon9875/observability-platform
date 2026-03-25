@@ -25,8 +25,8 @@ Observability 스택의 관측 대상이 되는 첫 번째 MSA 앱을 만든다.
   - `order_failed_total` — 실패한 주문 수 (Counter)
 4. ✅ Dockerfile 작성 (멀티 스테이지 빌드, non-root 실행)
 5. ✅ K8s 매니페스트 작성 (Deployment, Service, ConfigMap, ServiceMonitor)
-6. ⬜ 클러스터에 배포 후 Prometheus 스크랩 확인
-7. ⬜ Grafana에서 커스텀 메트릭 조회 확인
+6. ✅ 클러스터에 배포 후 Prometheus 스크랩 확인
+7. ✅ Grafana에서 커스텀 메트릭 조회 확인
 
 ### 구현 메모
 
