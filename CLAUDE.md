@@ -52,6 +52,12 @@ scripts/           → 운영 자동화 스크립트
 - type: feat, fix, refactor, docs, infra, test, chore
 - 브랜치: `feature/{기능명}`, `fix/{버그명}`
 
+## Project Progress
+
+- 프로젝트의 단계별 진행 상황은 `docs/PLAN.md`에서 관리한다.
+- 작업 시작 전 `docs/PLAN.md`를 참조하여 현재 단계와 완료 여부를 확인한다.
+- 각 단계의 할 일 목록과 완료 기준을 숙지하고 작업한다.
+
 ## Important Rules
 
 - infra/ 디렉토리의 YAML 파일을 수정할 때는 들여쓰기 2칸을 유지한다.
