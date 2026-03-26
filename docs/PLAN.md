@@ -57,7 +57,7 @@ Observability 스택의 관측 대상이 되는 첫 번째 MSA 앱을 만든다.
 
 ### 할 일
 
-1. payment-service 개발
+1. ✅ payment-service 개발
   - `POST /api/payments` — 결제 처리
   - order-service에서 REST로 호출
 2. notification-service 개발
