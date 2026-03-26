@@ -48,12 +48,20 @@ spec:
             limits:
               cpu: 500m
               memory: 512Mi
+          # 앱 최초 기동 완료 확인 (성공 전까지 liveness/readiness probe 비활성화)
+          # periodSeconds(10) * failureThreshold(20) = 최대 200초 기동 허용
+          startupProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 20
           # 파드가 살아있는지 확인 (실패 시 재시작)
           livenessProbe:
             httpGet:
               path: /actuator/health
               port: 8080
-            initialDelaySeconds: 60
             periodSeconds: 10
             failureThreshold: 3
           # 파드가 트래픽을 받을 준비가 됐는지 확인
@@ -61,6 +69,5 @@ spec:
             httpGet:
               path: /actuator/health
               port: 8080
-            initialDelaySeconds: 30
             periodSeconds: 10
             failureThreshold: 3
