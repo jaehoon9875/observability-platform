@@ -52,6 +52,12 @@ scripts/           → 운영 자동화 스크립트
 - type: feat, fix, refactor, docs, infra, test, chore
 - 브랜치: `feature/{기능명}`, `fix/{버그명}`
 
+## Current Status
+
+- 1단계 완료 (order-service 개발 및 배포, Prometheus/Grafana 메트릭 연동)
+- 현재: 2단계 진행 중 (payment-service ✅, notification-service 미완료)
+- 상세 계획: `docs/PLAN.md` 참조
+
 ## Project Progress
 
 - 프로젝트의 단계별 진행 상황은 `docs/PLAN.md`에서 관리한다.
