@@ -7,6 +7,7 @@ import com.example.order.dto.CreateOrderRequest;
 import com.example.order.dto.OrderResponse;
 import com.example.order.exception.OrderNotFoundException;
 import com.example.order.repository.OrderRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -14,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.kafka.core.KafkaTemplate;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -50,6 +52,10 @@ class OrderServiceTest {
     @Mock
     private PaymentClient paymentClient;
 
+    /** Kafka 발행을 대체하는 Mock KafkaTemplate. */
+    @Mock
+    private KafkaTemplate<String, String> kafkaTemplate;
+
     private OrderService orderService;
 
     /**
@@ -59,7 +65,7 @@ class OrderServiceTest {
      */
     @BeforeEach
     void setUp() {
-        orderService = new OrderService(orderRepository, paymentClient, new SimpleMeterRegistry());
+        orderService = new OrderService(orderRepository, paymentClient, kafkaTemplate, new ObjectMapper(), new SimpleMeterRegistry());
     }
 
     @Test

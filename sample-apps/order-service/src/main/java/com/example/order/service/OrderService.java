@@ -3,13 +3,17 @@ package com.example.order.service;
 import com.example.order.client.PaymentClient;
 import com.example.order.domain.Order;
 import com.example.order.dto.CreateOrderRequest;
+import com.example.order.dto.OrderCompletedEvent;
 import com.example.order.dto.OrderResponse;
 import com.example.order.exception.OrderNotFoundException;
 import com.example.order.repository.OrderRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,6 +40,11 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final PaymentClient paymentClient;
+    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final ObjectMapper objectMapper;
+
+    /** Kafka 이벤트를 발행할 토픽명. */
+    private static final String ORDER_COMPLETED_TOPIC = "order-completed";
 
     /** 성공적으로 완료된 주문 수 카운터. 메트릭명: order_created_total */
     private final Counter orderCreatedCounter;
@@ -68,9 +77,13 @@ public class OrderService {
      */
     public OrderService(OrderRepository orderRepository,
                         PaymentClient paymentClient,
+                        KafkaTemplate<String, String> kafkaTemplate,
+                        ObjectMapper objectMapper,
                         MeterRegistry meterRegistry) {
         this.orderRepository = orderRepository;
         this.paymentClient = paymentClient;
+        this.kafkaTemplate = kafkaTemplate;
+        this.objectMapper = objectMapper;
 
         this.orderCreatedCounter = Counter.builder("order_created_total")
                 .description("생성된 주문 수")
@@ -120,6 +133,7 @@ public class OrderService {
                 );
                 order.complete();
                 orderCreatedCounter.increment(); // 성공 카운터 증가
+                publishOrderCompletedEvent(order);
                 log.info("주문 생성 완료: orderId={}", order.getId());
             } catch (Exception e) {
                 order.fail();
@@ -130,6 +144,29 @@ public class OrderService {
 
             return OrderResponse.from(order);
         });
+    }
+
+    /**
+     * 주문 완료 이벤트를 Kafka order-completed 토픽으로 발행한다.
+     *
+     * <p>이벤트 발행 실패는 주문 처리 결과에 영향을 주지 않는다.
+     * 발행 실패 시 에러 로그를 남기고 계속 진행한다.</p>
+     *
+     * @param order 완료된 주문 엔티티
+     */
+    private void publishOrderCompletedEvent(Order order) {
+        try {
+            OrderCompletedEvent event = new OrderCompletedEvent(
+                    order.getId(),
+                    order.getProductId(),
+                    order.getTotalAmount()
+            );
+            String payload = objectMapper.writeValueAsString(event);
+            kafkaTemplate.send(ORDER_COMPLETED_TOPIC, String.valueOf(order.getId()), payload);
+            log.info("주문 완료 이벤트 발행: orderId={}", order.getId());
+        } catch (JsonProcessingException e) {
+            log.error("주문 완료 이벤트 직렬화 실패: orderId={}, error={}", order.getId(), e.getMessage());
+        }
     }
 
     /**
