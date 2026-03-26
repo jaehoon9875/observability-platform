@@ -79,6 +79,39 @@ spec:
 - [ ] `docs/mysql-setup.md`: 버전 정보 테이블(버전 미확정 항목) 및 중복 섹션 제거로 문서 간결화
 - [ ] `docs/kafka-setup.md`: Strimzi 공식 예시 README 참조 링크 추가 — [strimzi-kafka-operator/examples/kafka/README.md](https://github.com/strimzi/strimzi-kafka-operator/blob/main/examples/kafka/README.md)
 
+## MySQL 운영 참고
+
+### 배포 방식
+
+MySQL은 **MySQL Operator(InnoDBCluster)** 패턴으로 배포되어 있다.
+일반 Deployment/StatefulSet과 달리 아래 특성을 가진다.
+
+- 파드명: `mysql-cluster-0` (StatefulSet, 레이블 `app=mysql-cluster` 없음)
+- 컨테이너 2개: `mysql`(DB 본체), `mysqlsh`(Shell 사이드카)
+- `kubectl exec` 시 반드시 `-c mysql`로 컨테이너를 명시해야 한다.
+
+### MySQL 접속 명령
+
+```bash
+# 레이블 셀렉터로 찾으면 items가 비어있어 오류 발생 → 파드명을 직접 지정할 것
+kubectl exec -it mysql-cluster-0 -n observability-platform \
+  -c mysql -- mysql -uroot -p
+```
+
+### 새 서비스용 DB 생성 패턴
+
+새로운 sample-app을 추가할 때마다 아래 순서로 DB를 생성한다.
+
+```sql
+CREATE DATABASE IF NOT EXISTS <서비스명>db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+SHOW DATABASES;
+EXIT;
+```
+
+현재 생성된 DB 목록:
+- `orderdb` — order-service
+- `paymentdb` — payment-service
+
 ## 수정 시 주의사항
 
 - values.yaml 수정 후에는 `helm template` 명령으로 렌더링 결과를 검증한다.

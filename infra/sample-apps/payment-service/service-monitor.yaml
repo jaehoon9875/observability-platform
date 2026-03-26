@@ -1,0 +1,23 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: payment-service-monitor
+  # Prometheus Operator가 있는 네임스페이스에 배포해야 감지됨
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: payment-service
+    app.kubernetes.io/part-of: observability-platform
+    release: my-kube-prometheus-stack
+spec:
+  # observability-platform 네임스페이스에 있는 Service를 감시 대상으로 지정
+  namespaceSelector:
+    matchNames:
+      - observability-platform
+  # service.yaml의 labels.app 값과 반드시 일치해야 함
+  selector:
+    matchLabels:
+      app: payment-service
+  endpoints:
+    - port: http
+      path: /actuator/prometheus
+      interval: 15s
