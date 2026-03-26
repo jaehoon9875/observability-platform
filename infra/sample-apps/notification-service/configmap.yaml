@@ -10,4 +10,4 @@ data:
   DB_HOST: "mysql-cluster"
   DB_PORT: "3306"
   DB_NAME: "notificationdb"
-  KAFKA_BOOTSTRAP_SERVERS: "kafka-cluster-kafka-bootstrap:9092"
+  KAFKA_BOOTSTRAP_SERVERS: "kafka-kafka-bootstrap:9092"
