@@ -60,7 +60,7 @@ Observability 스택의 관측 대상이 되는 첫 번째 MSA 앱을 만든다.
 1. ✅ payment-service 개발
   - `POST /api/payments` — 결제 처리
   - order-service에서 REST로 호출
-2. notification-service 개발
+2. ✅ notification-service 개발
   - Kafka Consumer로 주문 완료 이벤트를 수신하여 알림 처리
 3. 서비스 간 통신 메트릭 추가
   - `payment_call_duration_seconds` — payment-service 호출 시간
