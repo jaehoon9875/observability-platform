@@ -62,7 +62,7 @@ Observability 스택의 관측 대상이 되는 첫 번째 MSA 앱을 만든다.
   - order-service에서 REST로 호출
 2. ✅ notification-service 개발
   - Kafka Consumer로 주문 완료 이벤트를 수신하여 알림 처리
-3. 서비스 간 통신 메트릭 추가
+3. ✅ 서비스 간 통신 메트릭 추가
   - `payment_call_duration_seconds` — payment-service 호출 시간
 4. OpenTelemetry Java Agent 연동 (분산 트레이싱)
 5. 각 서비스 Dockerfile + K8s 매니페스트 작성 및 배포

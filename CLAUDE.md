@@ -55,7 +55,7 @@ scripts/           → 운영 자동화 스크립트
 ## Current Status
 
 - 1단계 완료 (order-service 개발 및 배포, Prometheus/Grafana 메트릭 연동)
-- 현재: 2단계 진행 중 (payment-service ✅, notification-service ✅, 서비스 간 통신 메트릭/OTel 미완료)
+- 현재: 2단계 진행 중 (payment-service ✅, notification-service ✅, 서비스 간 통신 메트릭 ✅, OTel 미완료)
 - 상세 계획: `docs/PLAN.md` 참조
 
 ## Project Progress
