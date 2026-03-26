@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification-service
+  namespace: observability-platform
+  labels:
+    app.kubernetes.io/name: notification-service
+    app.kubernetes.io/part-of: observability-platform
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notification-service
+  template:
+    metadata:
+      labels:
+        app: notification-service
+        app.kubernetes.io/name: notification-service
+        app.kubernetes.io/part-of: observability-platform
+    spec:
+      containers:
+        - name: notification-service
+          image: jaehoon9875/notification-service:latest
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8080
+          # 민감하지 않은 설정은 ConfigMap에서 주입
+          envFrom:
+            - configMapRef:
+                name: notification-service-config
+          # DB 인증 정보는 Secret에서 주입
+          env:
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: notification-service-secret
+                  key: DB_USERNAME
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: notification-service-secret
+                  key: DB_PASSWORD
+          resources:
+            requests:
+              cpu: 250m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          # 앱 최초 기동 완료 확인 (성공 전까지 liveness/readiness probe 비활성화)
+          # periodSeconds(10) * failureThreshold(20) = 최대 200초 기동 허용
+          startupProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 20
+          # 파드가 살아있는지 확인 (실패 시 재시작)
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            periodSeconds: 10
+            failureThreshold: 3
+          # 파드가 트래픽을 받을 준비가 됐는지 확인
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            periodSeconds: 10
+            failureThreshold: 3
