@@ -13,3 +13,18 @@ spec:
   replicas: 1
   config:
     retention.ms: 604800000  # 메시지 보관 기간 7일
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  name: order-completed
+  namespace: observability-platform
+  labels:
+    strimzi.io/cluster: kafka
+    app.kubernetes.io/name: kafka-topic
+    app.kubernetes.io/part-of: observability-platform
+spec:
+  partitions: 3
+  replicas: 1
+  config:
+    retention.ms: 604800000  # 메시지 보관 기간 7일
