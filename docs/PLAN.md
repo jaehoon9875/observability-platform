@@ -65,7 +65,7 @@ Observability 스택의 관측 대상이 되는 첫 번째 MSA 앱을 만든다.
 3. ✅ 서비스 간 통신 메트릭 추가
   - `payment_call_duration_seconds` — payment-service 호출 시간
 4. ✅ OpenTelemetry Java Agent 연동 (분산 트레이싱)
-5. 각 서비스 Dockerfile + K8s 매니페스트 작성 및 배포
+5. ✅ 각 서비스 Dockerfile + K8s 매니페스트 작성 및 배포
 
 ### 완료 기준
 
