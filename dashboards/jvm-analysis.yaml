@@ -1,0 +1,243 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jvm-analysis-dashboard
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+data:
+  jvm-analysis.json: |
+    {
+      "id": null,
+      "uid": "jvm-analysis",
+      "title": "JVM Analysis",
+      "tags": ["jvm", "java"],
+      "timezone": "browser",
+      "refresh": "30s",
+      "time": { "from": "now-1h", "to": "now" },
+      "schemaVersion": 36,
+      "version": 1,
+      "templating": {
+        "list": [
+          {
+            "name": "job",
+            "type": "query",
+            "label": "서비스",
+            "query": "label_values(jvm_memory_used_bytes, job)",
+            "refresh": 2,
+            "includeAll": false,
+            "current": {}
+          }
+        ]
+      },
+      "panels": [
+        {
+          "id": 1,
+          "type": "stat",
+          "title": "Heap 사용량",
+          "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 },
+          "options": {
+            "reduceOptions": { "calcs": ["lastNotNull"] },
+            "colorMode": "background",
+            "graphMode": "none"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "bytes",
+              "thresholds": {
+                "mode": "percentage",
+                "steps": [
+                  { "color": "green", "value": null },
+                  { "color": "yellow", "value": 70 },
+                  { "color": "red", "value": 90 }
+                ]
+              }
+            }
+          },
+          "targets": [
+            {
+              "expr": "jvm_memory_used_bytes{job=\"$job\", area=\"heap\"}",
+              "legendFormat": "Used",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "type": "stat",
+          "title": "Heap 최대 용량",
+          "gridPos": { "x": 6, "y": 0, "w": 6, "h": 4 },
+          "options": {
+            "reduceOptions": { "calcs": ["lastNotNull"] },
+            "colorMode": "value",
+            "graphMode": "none"
+          },
+          "fieldConfig": {
+            "defaults": { "unit": "bytes" }
+          },
+          "targets": [
+            {
+              "expr": "jvm_memory_max_bytes{job=\"$job\", area=\"heap\"}",
+              "legendFormat": "Max",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "type": "stat",
+          "title": "활성 스레드 수",
+          "gridPos": { "x": 12, "y": 0, "w": 6, "h": 4 },
+          "options": {
+            "reduceOptions": { "calcs": ["lastNotNull"] },
+            "colorMode": "background",
+            "graphMode": "none"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": null },
+                  { "color": "yellow", "value": 100 },
+                  { "color": "red", "value": 200 }
+                ]
+              }
+            }
+          },
+          "targets": [
+            {
+              "expr": "jvm_threads_live_threads{job=\"$job\"}",
+              "legendFormat": "Live Threads",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "type": "stat",
+          "title": "GC 횟수 (5m)",
+          "gridPos": { "x": 18, "y": 0, "w": 6, "h": 4 },
+          "options": {
+            "reduceOptions": { "calcs": ["lastNotNull"] },
+            "colorMode": "value",
+            "graphMode": "none"
+          },
+          "fieldConfig": {
+            "defaults": { "unit": "short" }
+          },
+          "targets": [
+            {
+              "expr": "increase(jvm_gc_pause_seconds_count{job=\"$job\"}[5m])",
+              "legendFormat": "GC 횟수",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "id": 5,
+          "type": "timeseries",
+          "title": "Heap 메모리 사용량 추이",
+          "description": "Heap Used / Committed / Max 비교",
+          "gridPos": { "x": 0, "y": 4, "w": 12, "h": 8 },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "bytes",
+              "custom": { "lineWidth": 2 }
+            }
+          },
+          "targets": [
+            {
+              "expr": "jvm_memory_used_bytes{job=\"$job\", area=\"heap\"}",
+              "legendFormat": "Used",
+              "refId": "A"
+            },
+            {
+              "expr": "jvm_memory_committed_bytes{job=\"$job\", area=\"heap\"}",
+              "legendFormat": "Committed",
+              "refId": "B"
+            },
+            {
+              "expr": "jvm_memory_max_bytes{job=\"$job\", area=\"heap\"}",
+              "legendFormat": "Max",
+              "refId": "C"
+            }
+          ]
+        },
+        {
+          "id": 6,
+          "type": "timeseries",
+          "title": "Non-Heap 메모리 사용량 추이",
+          "description": "Metaspace 등 Non-Heap 영역",
+          "gridPos": { "x": 12, "y": 4, "w": 12, "h": 8 },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "bytes",
+              "custom": { "lineWidth": 2 }
+            }
+          },
+          "targets": [
+            {
+              "expr": "jvm_memory_used_bytes{job=\"$job\", area=\"nonheap\"}",
+              "legendFormat": "Used",
+              "refId": "A"
+            },
+            {
+              "expr": "jvm_memory_committed_bytes{job=\"$job\", area=\"nonheap\"}",
+              "legendFormat": "Committed",
+              "refId": "B"
+            }
+          ]
+        },
+        {
+          "id": 7,
+          "type": "timeseries",
+          "title": "GC 일시정지 시간",
+          "description": "Young / Old Generation GC pause duration",
+          "gridPos": { "x": 0, "y": 12, "w": 12, "h": 8 },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "s",
+              "custom": { "lineWidth": 2 }
+            }
+          },
+          "targets": [
+            {
+              "expr": "rate(jvm_gc_pause_seconds_sum{job=\"$job\"}[5m])",
+              "legendFormat": "{{ action }} - {{ cause }}",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "id": 8,
+          "type": "timeseries",
+          "title": "스레드 상태별 현황",
+          "gridPos": { "x": 12, "y": 12, "w": 12, "h": 8 },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "custom": { "lineWidth": 2 }
+            }
+          },
+          "targets": [
+            {
+              "expr": "jvm_threads_live_threads{job=\"$job\"}",
+              "legendFormat": "Live",
+              "refId": "A"
+            },
+            {
+              "expr": "jvm_threads_daemon_threads{job=\"$job\"}",
+              "legendFormat": "Daemon",
+              "refId": "B"
+            },
+            {
+              "expr": "jvm_threads_peak_threads{job=\"$job\"}",
+              "legendFormat": "Peak",
+              "refId": "C"
+            }
+          ]
+        }
+      ]
+    }
