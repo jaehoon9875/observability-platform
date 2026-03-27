@@ -56,8 +56,8 @@ data:
           },
           "targets": [
             {
-              "expr": "jvm_memory_used_bytes{job=\"$job\", area=\"heap\"}",
-              "legendFormat": "Used",
+              "expr": "sum(jvm_memory_used_bytes{job=\"$job\", area=\"heap\"})",
+              "legendFormat": "Used (합계)",
               "refId": "A"
             }
           ]
@@ -77,8 +77,8 @@ data:
           },
           "targets": [
             {
-              "expr": "jvm_memory_max_bytes{job=\"$job\", area=\"heap\"}",
-              "legendFormat": "Max",
+              "expr": "sum(jvm_memory_max_bytes{job=\"$job\", area=\"heap\"})",
+              "legendFormat": "Max (합계)",
               "refId": "A"
             }
           ]
@@ -150,17 +150,17 @@ data:
           "targets": [
             {
               "expr": "jvm_memory_used_bytes{job=\"$job\", area=\"heap\"}",
-              "legendFormat": "Used",
+              "legendFormat": "Used - {{ id }}",
               "refId": "A"
             },
             {
-              "expr": "jvm_memory_committed_bytes{job=\"$job\", area=\"heap\"}",
-              "legendFormat": "Committed",
+              "expr": "sum(jvm_memory_committed_bytes{job=\"$job\", area=\"heap\"})",
+              "legendFormat": "Committed (합계)",
               "refId": "B"
             },
             {
-              "expr": "jvm_memory_max_bytes{job=\"$job\", area=\"heap\"}",
-              "legendFormat": "Max",
+              "expr": "sum(jvm_memory_max_bytes{job=\"$job\", area=\"heap\"})",
+              "legendFormat": "Max (합계)",
               "refId": "C"
             }
           ]
@@ -180,12 +180,12 @@ data:
           "targets": [
             {
               "expr": "jvm_memory_used_bytes{job=\"$job\", area=\"nonheap\"}",
-              "legendFormat": "Used",
+              "legendFormat": "Used - {{ id }}",
               "refId": "A"
             },
             {
               "expr": "jvm_memory_committed_bytes{job=\"$job\", area=\"nonheap\"}",
-              "legendFormat": "Committed",
+              "legendFormat": "Committed - {{ id }}",
               "refId": "B"
             }
           ]
