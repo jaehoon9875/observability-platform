@@ -1,0 +1,75 @@
+# argo/argo-cd 커스텀 설정
+# chart version: TODO — 설치 전 확인: helm search repo argo/argo-cd
+# app version: v2.13.x 이상 (multiple sources 기능: v2.6+ 필요)
+# release name: argocd
+
+# 싱글노드 홈서버 환경 최적화
+
+server:
+  # TLS 없이 접근 허용 (포트포워딩 또는 NodePort 사용 시)
+  # 외부에 노출할 경우 Ingress + TLS 적용 권장
+  extraArgs:
+    - --insecure
+
+  service:
+    type: NodePort
+    nodePortHttp: 30088   # http://서버IP:30088 으로 UI 접근
+
+# 싱글노드 환경: HA Redis 비활성화
+redis-ha:
+  enabled: false
+
+# 각 컴포넌트 리소스 축소 (홈서버 리소스 절약)
+controller:
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+server:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
+repoServer:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
+applicationSet:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
+notifications:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 128Mi
+
+redis:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 128Mi

@@ -105,69 +105,73 @@ persistence:
 
 ## ArgoCD 연동 방식
 
-- 각 ArgoCD Application은 이 레포의 특정 하위 경로를 source로 지정한다.
-- 동기화 정책: 자동 동기화 (auto-sync) + 자동 프루닝 (auto-prune)
-- Helm Application 예시: `infra/helm/kube-prometheus-stack/` → monitoring 네임스페이스에 동기화
-- Manifest Application 예시: `infra/manifests/sample-apps/` → obs-apps 네임스페이스에 동기화
+- 각 ArgoCD Application 매니페스트는 `infra/argocd/` 하위에 위치한다.
+- Application 오브젝트 자체는 반드시 `namespace: argocd`에 생성해야 ArgoCD가 감지한다.
+- 동기화 정책: 자동 동기화 (auto-sync) + 자동 프루닝 (auto-prune) + selfHeal
+- 설치 가이드: `docs/argocd-setup.md` 참조
 
-### ArgoCD Application 예시 (manifests 방식)
+### ArgoCD Application 구조
 
-```yaml
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: sample-apps
-  namespace: argocd
-spec:
-  source:
-    repoURL: https://github.com/jaehoon9875/observability-platform
-    path: infra/manifests/sample-apps
-    targetRevision: main
-  destination:
-    server: https://kubernetes.default.svc
-    namespace: obs-apps
-  syncPolicy:
-    automated:
-      prune: true       # Git에서 삭제하면 클러스터에서도 삭제
-      selfHeal: true    # 클러스터 상태가 Git과 다르면 자동 복구
+```
+infra/argocd/
+├── monitoring/       # Prometheus, Loki, Tempo, Alloy
+└── obs-apps/         # MySQL, Kafka, Redis, sample-apps 등
 ```
 
-### ArgoCD Application 예시 (Helm 방식)
+### Application 방식 — manifests (raw K8s)
 
 ```yaml
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: loki
-  namespace: argocd
 spec:
   source:
     repoURL: https://github.com/jaehoon9875/observability-platform
-    path: infra/helm/loki
+    path: infra/manifests/sample-apps   # git 경로
     targetRevision: main
-    helm:
-      valueFiles:
-        - values.yaml
-        - custom-values.yaml
   destination:
-    server: https://kubernetes.default.svc
+    namespace: obs-apps                 # 배포 대상 네임스페이스
+```
+
+### Application 방식 — Helm (multiple sources, ArgoCD v2.6+)
+
+chart registry와 git values 파일을 분리하는 방식. 버전 고정 및 파일 추적이 명확해진다.
+
+```yaml
+spec:
+  sources:
+    - repoURL: https://grafana.github.io/helm-charts
+      chart: loki
+      targetRevision: 6.55.0            # chart 버전 고정
+      helm:
+        valueFiles:
+          - $values/infra/helm/loki/custom-values.yaml
+    - repoURL: https://github.com/jaehoon9875/observability-platform
+      targetRevision: main
+      ref: values                       # 위 $values 참조용
+  destination:
     namespace: monitoring
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
 ```
+
+### Operator 의존성 순서
+
+```
+mysql-operator → mysql (InnoDBCluster)
+strimzi-operator → kafka (Kafka CR)
+kafka → kafka-ui
+```
+
+### 주의사항
+
+- kube-prometheus-stack: CRD 크기로 인해 `ServerSideApply=true` 필수
+- sample-apps: DB Secret(`order-service-secret`, `payment-service-secret`)은 ArgoCD 관리 밖에서 수동 생성
+- k6: on-demand Job이므로 ArgoCD 관리 제외 — `kubectl apply`로 수동 실행
 
 ## TODO
 
 ### 인프라
 
-- [ ] ArgoCD 설치 및 Application 매니페스트 작성 (`infra/argocd/`)
-- [ ] Observability 스택 Helm values 추출 및 정리
-  - [ ] `infra/helm/kube-prometheus-stack/`
-  - [ ] `infra/helm/loki/`
-  - [ ] `infra/helm/tempo/`
-- [ ] MySQL: 추후 ArgoCD Application으로 GitOps 연동 예정
+- [x] ArgoCD Application 매니페스트 작성 (`infra/argocd/`) — 초안 완료
+- [x] Observability 스택 Helm values 추출 및 정리 — 완료
+- [ ] ArgoCD 클러스터 설치 (`docs/argocd-setup.md` 참조)
+- [ ] ArgoCD Application 등록 및 동기화 확인
 - [ ] Kafka: 현재 K8s 매니페스트로 임시 배포 중. 추후 Helm chart 기반으로 전환 예정
 
 ### 문서 정리 (`docs/`)
