@@ -125,27 +125,77 @@ SLO 기반 모니터링 체계를 구축한다.
 
 ---
 
-## 5단계: infra/ GitOps 전환
+## 5단계: infra/ GitOps 전환 (ArgoCD)
 
 ### 목표
 
-수동으로 설치한 Observability 스택을 ArgoCD 기반 GitOps로 전환한다.
+수동으로 설치한 Observability 스택과 sample-apps를 ArgoCD 기반 GitOps로 전환한다.
+
+### 배경
+
+ArgoCD는 Git 리포지토리를 바라보며 infra/ 디렉토리의 변경을 감지해 클러스터에 자동으로 동기화한다.
+이미지 빌드는 CI(6단계)가 담당하고, ArgoCD는 선언적 상태 관리만 책임진다.
 
 ### 할 일
 
-1. ArgoCD 설치 (아직 안 했다면)
-2. infra/ 하위에 각 스택의 Helm values.yaml 정리
-3. ArgoCD Application 매니페스트 작성
-4. Git push → 클러스터 자동 동기화 확인
-5. sample-apps도 infra/sample-apps/ 매니페스트로 ArgoCD 관리
+1. ArgoCD 설치 (클러스터에 배포)
+2. 현재 Helm으로 설치된 Observability 스택의 values 추출 및 infra/ 정리
+   - `infra/prometheus-stack/values.yaml`
+   - `infra/loki/values.yaml`
+   - `infra/tempo/values.yaml`
+   - `infra/alloy/values.yaml` (필요 시)
+3. ArgoCD Application 매니페스트 작성 (`infra/argocd/`)
+   - Observability 스택 Application
+   - sample-apps Application
+4. Git push → ArgoCD 자동 동기화 확인
+5. sample-apps의 기존 kubectl apply 방식을 ArgoCD로 완전 전환
 
 ### 완료 기준
 
-- infra/ 디렉토리의 values.yaml을 수정하고 push하면 클러스터에 자동 반영된다.
+- `infra/` 디렉토리의 values.yaml을 수정하고 push하면 클러스터에 자동 반영된다.
+- ArgoCD UI에서 모든 Application이 Synced 상태로 표시된다.
 
 ---
 
-## 6단계: custom-exporter 개발
+## 6단계: GitHub Actions CI 파이프라인
+
+### 목표
+
+sample-apps의 소스 코드 변경 시 이미지 빌드부터 배포까지 자동화한다.
+실무 GitOps 흐름(코드 커밋 → CI 빌드 → ArgoCD 배포)을 완성한다.
+
+### 전체 흐름
+
+```
+개발자 코드 커밋 (sample-apps/)
+  ↓
+GitHub Actions (GitHub 서버에서 실행)
+  ├── 단위 테스트
+  ├── Docker 이미지 빌드
+  └── GHCR(GitHub Container Registry) push
+       ↓
+       infra/sample-apps/.../deployment.yaml 이미지 태그 업데이트 커밋
+         ↓
+         ArgoCD 감지 → 클러스터 자동 배포
+```
+
+### 할 일
+
+1. GHCR 연동 설정 (GitHub Actions에서 GHCR 인증)
+2. 각 sample-app별 Workflow 작성 (`.github/workflows/`)
+   - 변경된 서비스만 빌드되도록 경로 필터 설정
+   - 이미지 태그: `git commit SHA` 사용
+3. CI가 infra/ 매니페스트의 이미지 태그를 자동으로 업데이트하는 커밋 추가
+4. ArgoCD 자동 배포 end-to-end 확인
+
+### 완료 기준
+
+- `sample-apps/order-service/` 코드 변경 후 push 시 GitHub Actions가 자동 실행된다.
+- GHCR에 새 이미지가 push되고, ArgoCD가 자동으로 클러스터에 배포한다.
+
+---
+
+## 7단계: custom-exporter 개발
 
 ### 목표
 
@@ -166,7 +216,7 @@ Prometheus가 기본으로 수집하지 않는 메트릭을 수집하는 독립 
 
 ---
 
-## 7단계: scripts/ 자동화 도구
+## 8단계: scripts/ 자동화 도구
 
 ### 할 일
 
