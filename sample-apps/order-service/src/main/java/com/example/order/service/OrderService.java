@@ -6,6 +6,7 @@ import com.example.order.dto.CreateOrderRequest;
 import com.example.order.dto.OrderCompletedEvent;
 import com.example.order.dto.OrderResponse;
 import com.example.order.exception.OrderNotFoundException;
+import com.example.order.exception.PaymentFailedException;
 import com.example.order.repository.OrderRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -112,9 +113,9 @@ public class OrderService {
      *
      * @param request 주문 생성 요청 DTO
      * @return 저장된 주문 정보
-     * @throws RuntimeException 결제 처리 중 예외 발생 시 (주문은 FAILED 상태로 남음)
+     * @throws PaymentFailedException 결제 처리 중 예외 발생 시 (주문은 FAILED 상태로 DB에 커밋됨)
      */
-    @Transactional
+    @Transactional(noRollbackFor = PaymentFailedException.class)
     public OrderResponse createOrder(CreateOrderRequest request) {
         // orderProcessingTimer.record()로 감싸 주문 처리 전체 시간을 측정한다.
         return orderProcessingTimer.record(() -> {
@@ -139,7 +140,8 @@ public class OrderService {
                 order.fail();
                 orderFailedCounter.increment(); // 실패 카운터 증가
                 log.error("주문 실패: orderId={}, error={}", order.getId(), e.getMessage());
-                throw e; // 예외를 다시 던져 트랜잭션 롤백을 유도한다.
+                // PaymentFailedException은 noRollbackFor 대상이므로 트랜잭션이 커밋되어 FAILED 상태가 DB에 저장된다.
+                throw new PaymentFailedException("결제 처리 실패: " + e.getMessage(), e);
             }
 
             return OrderResponse.from(order);

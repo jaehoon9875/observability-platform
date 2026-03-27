@@ -16,9 +16,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  *
  * <pre>
  * 처리 우선순위 (구체적 예외 → 일반 예외 순):
- *   1. OrderNotFoundException    → 404 Not Found
- *   2. MethodArgumentNotValidException → 400 Bad Request
- *   3. Exception (fallback)      → 500 Internal Server Error
+ *   1. OrderNotFoundException       → 404 Not Found
+ *   2. PaymentFailedException       → 502 Bad Gateway
+ *   3. MethodArgumentNotValidException → 400 Bad Request
+ *   4. Exception (fallback)         → 500 Internal Server Error
  * </pre>
  */
 @Slf4j
@@ -35,6 +36,22 @@ public class GlobalExceptionHandler {
     public ProblemDetail handleOrderNotFound(OrderNotFoundException e) {
         log.warn(e.getMessage());
         ProblemDetail detail = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+        detail.setDetail(e.getMessage());
+        return detail;
+    }
+
+    /**
+     * 결제 처리 실패 시 502 응답을 반환한다.
+     *
+     * <p>payment-service 호출이 실패한 경우로, 주문은 FAILED 상태로 DB에 저장된다.</p>
+     *
+     * @param e 발생한 PaymentFailedException
+     * @return RFC 7807 형식의 502 ProblemDetail
+     */
+    @ExceptionHandler(PaymentFailedException.class)
+    public ProblemDetail handlePaymentFailed(PaymentFailedException e) {
+        log.warn(e.getMessage());
+        ProblemDetail detail = ProblemDetail.forStatus(HttpStatus.BAD_GATEWAY);
         detail.setDetail(e.getMessage());
         return detail;
     }

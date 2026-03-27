@@ -6,6 +6,7 @@ import com.example.order.domain.OrderStatus;
 import com.example.order.dto.CreateOrderRequest;
 import com.example.order.dto.OrderResponse;
 import com.example.order.exception.OrderNotFoundException;
+import com.example.order.exception.PaymentFailedException;
 import com.example.order.repository.OrderRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
@@ -86,15 +87,19 @@ class OrderServiceTest {
     }
 
     @Test
-    @DisplayName("결제 실패 시 주문 상태가 FAILED로 변경되고 예외가 전파된다")
+    @DisplayName("결제 실패 시 주문 상태가 FAILED로 변경되고 PaymentFailedException이 전파된다")
     void createOrder_paymentFailed() {
         // given: PaymentClient가 예외를 던지도록 설정
         CreateOrderRequest request = new CreateOrderRequest("PRODUCT-001", 1, BigDecimal.valueOf(5000));
         given(orderRepository.save(any(Order.class))).willAnswer(inv -> inv.getArgument(0));
         doThrow(new RuntimeException("결제 서버 오류")).when(paymentClient).processPayment(any(), any());
 
-        // then: 예외가 호출자까지 전파되는지 검증 (주문은 FAILED 상태로 남음)
+        // then: PaymentFailedException이 전파되는지 검증
+        // noRollbackFor 덕분에 트랜잭션이 커밋되어 주문이 FAILED 상태로 DB에 저장된다.
         assertThatThrownBy(() -> orderService.createOrder(request))
+                .isInstanceOf(PaymentFailedException.class)
+                .hasMessageContaining("결제 서버 오류")
+                .cause()
                 .isInstanceOf(RuntimeException.class)
                 .hasMessageContaining("결제 서버 오류");
     }
