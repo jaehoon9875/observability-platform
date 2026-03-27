@@ -59,7 +59,7 @@ kubectl get pods -n observability-platform
 kubectl port-forward svc/order-service 8080:8080 -n observability-platform
 curl -X POST http://localhost:8080/api/orders \
   -H "Content-Type: application/json" \
-  -d '{"productId": 1, "quantity": 1, "customerId": 1001}'
+  -d '{"productId": "1", "quantity": 1, "totalAmount": 10000}'
 ```
 
 ---

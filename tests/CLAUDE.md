@@ -42,9 +42,9 @@ POST /api/orders
 Content-Type: application/json
 
 {
-  "productId": 1,
+  "productId": "1",
   "quantity": 1,
-  "customerId": 1001
+  "totalAmount": 10000
 }
 ```
 
