@@ -22,13 +22,25 @@ infra/
 ├── argocd/              → ArgoCD Application 정의 (어떤 디렉토리를 동기화할지)
 │
 ├── helm/                → Helm chart로 관리하는 스택
-│   ├── prometheus-stack/ → kube-prometheus-stack
+│   ├── kube-prometheus-stack/ → kube-prometheus-stack
 │   │   ├── values.yaml       # helm show values로 받은 전체 기본값 (참고용)
 │   │   └── custom-values.yaml # 우리 환경에 맞게 오버라이드한 값만 작성
 │   ├── loki/
 │   │   ├── values.yaml
 │   │   └── custom-values.yaml
 │   ├── tempo/
+│   │   ├── values.yaml
+│   │   └── custom-values.yaml
+│   ├── alloy/
+│   │   ├── values.yaml
+│   │   └── custom-values.yaml
+│   ├── strimzi-operator/
+│   │   ├── values.yaml
+│   │   └── custom-values.yaml
+│   ├── mysql-operator/
+│   │   ├── values.yaml
+│   │   └── custom-values.yaml
+│   ├── kafka-ui/
 │   │   ├── values.yaml
 │   │   └── custom-values.yaml
 │   └── redis/
@@ -95,7 +107,7 @@ persistence:
 
 - 각 ArgoCD Application은 이 레포의 특정 하위 경로를 source로 지정한다.
 - 동기화 정책: 자동 동기화 (auto-sync) + 자동 프루닝 (auto-prune)
-- Helm Application 예시: `infra/helm/prometheus-stack/` → monitoring 네임스페이스에 동기화
+- Helm Application 예시: `infra/helm/kube-prometheus-stack/` → monitoring 네임스페이스에 동기화
 - Manifest Application 예시: `infra/manifests/sample-apps/` → obs-apps 네임스페이스에 동기화
 
 ### ArgoCD Application 예시 (manifests 방식)
@@ -152,7 +164,7 @@ spec:
 
 - [ ] ArgoCD 설치 및 Application 매니페스트 작성 (`infra/argocd/`)
 - [ ] Observability 스택 Helm values 추출 및 정리
-  - [ ] `infra/helm/prometheus-stack/`
+  - [ ] `infra/helm/kube-prometheus-stack/`
   - [ ] `infra/helm/loki/`
   - [ ] `infra/helm/tempo/`
 - [ ] MySQL: 추후 ArgoCD Application으로 GitOps 연동 예정

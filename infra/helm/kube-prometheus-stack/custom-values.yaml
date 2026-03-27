@@ -1,0 +1,23 @@
+# prometheus-community/kube-prometheus-stack 커스텀 설정
+# chart version: 82.14.0 / app version: v0.89.0
+# release name: my-kube-prometheus-stack
+# 현재 클러스터는 모두 기본값으로 설치됨
+
+# Grafana 추가 데이터소스 (Loki, Tempo 연동)
+grafana:
+  additionalDataSources:
+    - name: Loki
+      type: loki
+      uid: loki
+      url: http://loki.monitoring:3100
+      access: proxy
+    - name: Tempo
+      type: tempo
+      uid: tempo
+      url: http://tempo.monitoring:3200
+      access: proxy
+      jsonData:
+        tracesToLogsV2:
+          datasourceUid: loki
+        lokiSearch:
+          datasourceUid: loki

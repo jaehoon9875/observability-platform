@@ -57,9 +57,13 @@ observability-platform/
 ├── infra/                        # IaC + GitOps 매니페스트
 │   ├── argocd/                   # ArgoCD Application 정의
 │   ├── helm/                     # Helm chart로 관리하는 스택
-│   │   ├── prometheus-stack/     #   kube-prometheus-stack (values.yaml + custom-values.yaml)
+│   │   ├── kube-prometheus-stack/ #   kube-prometheus-stack (values.yaml + custom-values.yaml)
 │   │   ├── loki/                 #   Loki
 │   │   ├── tempo/                #   Tempo
+│   │   ├── alloy/                #   Grafana Alloy (로그 수집)
+│   │   ├── strimzi-operator/     #   Strimzi Kafka Operator
+│   │   ├── mysql-operator/       #   MySQL Operator
+│   │   ├── kafka-ui/             #   Kafka UI
 │   │   └── redis/                #   Redis
 │   └── manifests/                # Raw K8s 매니페스트 (kubectl apply / ArgoCD)
 │       ├── kafka/                #   Kafka Operator CRD

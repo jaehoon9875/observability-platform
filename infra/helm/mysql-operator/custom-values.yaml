@@ -1,0 +1,6 @@
+# mysql-operator/mysql-operator 커스텀 설정
+# chart version: 2.2.7 / app version: 9.6.0-2.2.7
+# 역할: MySQL InnoDBCluster CRD 관리
+# 주의: Operator 삭제 시 관리 중인 MySQL 클러스터에 영향 가능
+
+# 기본값으로 설치됨 (커스터마이징 없음)

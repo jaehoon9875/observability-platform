@@ -1,0 +1,8 @@
+# strimzi/strimzi-kafka-operator 커스텀 설정
+# chart version: 0.51.0 / app version: 0.51.0
+# 역할: Kafka CRD 관리 (Kafka, KafkaTopic 등)
+# 주의: Operator 삭제 시 관리 중인 Kafka 클러스터에 영향 가능
+
+# 기본값([])에서 변경: obs-apps 네임스페이스의 Kafka CR만 감시
+watchNamespaces:
+  - observability-platform
