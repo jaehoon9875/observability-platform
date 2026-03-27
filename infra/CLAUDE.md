@@ -20,13 +20,68 @@ ArgoCD가 이 디렉토리를 감시하며, Git push 시 클러스터에 자동 
 ```
 infra/
 ├── argocd/              → ArgoCD Application 정의 (어떤 디렉토리를 동기화할지)
-├── prometheus-stack/    → kube-prometheus-stack Helm values.yaml
-├── loki/                → Loki Helm values.yaml
-├── tempo/               → Tempo Helm values.yaml
-├── mysql/               → MySQL Operator InnoDBCluster 매니페스트 (mysql-cluster.yaml)
-├── kafka/               → Kafka K8s 매니페스트 (kafka.yaml, kafka-cluster.yaml) [TODO: Helm으로 전환 예정]
-├── redis/               → Redis Helm values.yaml
-└── sample-apps/         → Deployment, Service, ConfigMap 등 K8s 매니페스트
+│
+├── helm/                → Helm chart로 관리하는 스택
+│   ├── prometheus-stack/ → kube-prometheus-stack
+│   │   ├── values.yaml       # helm show values로 받은 전체 기본값 (참고용)
+│   │   └── custom-values.yaml # 우리 환경에 맞게 오버라이드한 값만 작성
+│   ├── loki/
+│   │   ├── values.yaml
+│   │   └── custom-values.yaml
+│   ├── tempo/
+│   │   ├── values.yaml
+│   │   └── custom-values.yaml
+│   └── redis/
+│       ├── values.yaml
+│       └── custom-values.yaml
+│
+└── manifests/           → kubectl apply 또는 ArgoCD가 직접 적용하는 raw K8s 매니페스트
+    ├── kafka/            → Kafka Operator CRD (Kafka, KafkaTopic)
+    ├── mysql/            → MySQL Operator InnoDBCluster
+    ├── sample-apps/      → Deployment, Service, ConfigMap, ServiceMonitor
+    │   ├── order-service/
+    │   ├── payment-service/
+    │   └── notification-service/
+    └── k6/               → k6 부하 테스트 Job, ConfigMap
+```
+
+## values.yaml 작성 규칙
+
+Helm chart 설정은 두 파일로 분리하여 관리한다.
+
+| 파일 | 내용 | 작성 방법 |
+|---|---|---|
+| `values.yaml` | chart의 전체 기본값 | `helm show values <chart> > values.yaml` |
+| `custom-values.yaml` | 우리 환경에 맞게 오버라이드한 값만 | 필요한 키만 직접 작성 |
+
+### Helm 적용 명령
+
+```bash
+helm upgrade --install <release> <chart> \
+  -f infra/helm/<stack>/values.yaml \
+  -f infra/helm/<stack>/custom-values.yaml \
+  -n <namespace>
+# 뒤에 오는 파일이 앞 파일을 덮어씁니다
+```
+
+### custom-values.yaml 작성 원칙
+
+- 전체 기본값을 복사하지 않는다. 의도적으로 변경한 값만 작성한다.
+- 파일만 봐도 "우리가 무엇을 바꿨는지"가 명확해야 한다.
+- Chart 버전 업그레이드 시 새 기본값을 자연스럽게 흡수할 수 있도록 한다.
+
+```yaml
+# 좋은 예 — 변경 의도가 명확
+replicaCount: 1
+
+resources:
+  requests:
+    cpu: 200m
+    memory: 256Mi
+
+persistence:
+  enabled: true
+  size: 5Gi
 ```
 
 ## YAML 작성 규칙
@@ -40,23 +95,21 @@ infra/
 
 - 각 ArgoCD Application은 이 레포의 특정 하위 경로를 source로 지정한다.
 - 동기화 정책: 자동 동기화 (auto-sync) + 자동 프루닝 (auto-prune)
-- 예시: `infra/prometheus-stack/` → monitoring 네임스페이스에 동기화
+- Helm Application 예시: `infra/helm/prometheus-stack/` → monitoring 네임스페이스에 동기화
+- Manifest Application 예시: `infra/manifests/sample-apps/` → observability-platform 네임스페이스에 동기화
 
-### Kafka ArgoCD Application 예시
-
-현재는 `kubectl apply`로 수동 배포 중이며, 추후 ArgoCD Application으로 전환 예정.
-`infra/kafka/` 경로를 Application으로 등록하면 별도 코드 변경 없이 GitOps 방식으로 전환 가능.
+### ArgoCD Application 예시 (manifests 방식)
 
 ```yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: kafka
+  name: sample-apps
   namespace: argocd
 spec:
   source:
-    repoURL: https://github.com/your-id/your-repo
-    path: infra/kafka
+    repoURL: https://github.com/jaehoon9875/observability-platform
+    path: infra/manifests/sample-apps
     targetRevision: main
   destination:
     server: https://kubernetes.default.svc
@@ -67,12 +120,43 @@ spec:
       selfHeal: true    # 클러스터 상태가 Git과 다르면 자동 복구
 ```
 
+### ArgoCD Application 예시 (Helm 방식)
+
+```yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: loki
+  namespace: argocd
+spec:
+  source:
+    repoURL: https://github.com/jaehoon9875/observability-platform
+    path: infra/helm/loki
+    targetRevision: main
+    helm:
+      valueFiles:
+        - values.yaml
+        - custom-values.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+```
+
 ## TODO
 
 ### 인프라
 
-- [ ] MySQL: MySQL Operator(`mysql-cluster.yaml`)로 전환 완료. 추후 ArgoCD Application으로 GitOps 연동 예정
-- [ ] Kafka: 현재 K8s 매니페스트(`kafka.yaml`, `kafka-cluster.yaml`)로 임시 배포 중. 추후 Helm chart 기반으로 전환 예정
+- [ ] ArgoCD 설치 및 Application 매니페스트 작성 (`infra/argocd/`)
+- [ ] Observability 스택 Helm values 추출 및 정리
+  - [ ] `infra/helm/prometheus-stack/`
+  - [ ] `infra/helm/loki/`
+  - [ ] `infra/helm/tempo/`
+- [ ] MySQL: 추후 ArgoCD Application으로 GitOps 연동 예정
+- [ ] Kafka: 현재 K8s 매니페스트로 임시 배포 중. 추후 Helm chart 기반으로 전환 예정
 
 ### 문서 정리 (`docs/`)
 
@@ -114,7 +198,7 @@ EXIT;
 
 ## 수정 시 주의사항
 
-- values.yaml 수정 후에는 `helm template` 명령으로 렌더링 결과를 검증한다.
+- custom-values.yaml 수정 후에는 `helm template` 명령으로 렌더링 결과를 검증한다.
 - PVC가 포함된 리소스를 삭제할 때는 데이터 유실에 주의한다.
 - CRD(Custom Resource Definition)는 ArgoCD 동기화 전에 먼저 수동 설치해야 할 수 있다.
 
