@@ -46,7 +46,7 @@ spec:
             - name: OTEL_SERVICE_NAME
               value: order-service
             - name: OTEL_EXPORTER_OTLP_ENDPOINT
-              value: http://tempo.monitoring:4317
+              value: http://tempo.monitoring:4318
             - name: OTEL_TRACES_EXPORTER
               value: otlp
             - name: OTEL_METRICS_EXPORTER
