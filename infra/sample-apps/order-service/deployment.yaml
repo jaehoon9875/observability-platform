@@ -42,6 +42,17 @@ spec:
                 secretKeyRef:
                   name: order-service-secret
                   key: DB_PASSWORD
+            # OTel Java Agent 설정
+            - name: OTEL_SERVICE_NAME
+              value: order-service
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: http://tempo.monitoring:4317
+            - name: OTEL_TRACES_EXPORTER
+              value: otlp
+            - name: OTEL_METRICS_EXPORTER
+              value: none
+            - name: OTEL_LOGS_EXPORTER
+              value: none
           resources:
             requests:
               cpu: 250m
