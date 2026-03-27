@@ -39,8 +39,10 @@ scripts/           → 운영 자동화 스크립트
 
 ## Current Status
 
-- 1단계 완료 (order-service 개발 및 배포, Prometheus/Grafana 메트릭 연동)
-- 현재: 2단계 완료 ✅, 3단계 진행 예정 (대시보드 및 Alert Rule 설계)
+- 1단계 완료 ✅ (order-service 개발 및 배포, Prometheus/Grafana 메트릭 연동)
+- 2단계 완료 ✅ (payment/notification-service 개발, 분산 트레이싱 연동)
+- 3단계 완료 ✅ (SLO 대시보드, JVM 대시보드, Alert Rule 작성 및 클러스터 적용)
+- 현재: 4단계 진행 예정 (k6 부하 테스트)
 - 상세 계획: `docs/PLAN.md` 참조
 
 ## Project Progress

@@ -82,21 +82,22 @@ SLO 기반 모니터링 체계를 구축한다.
 
 ### 할 일
 
-1. SLO 정의
-  - 예: order-service 가용성 99.9%, 응답시간 P99 < 500ms
-2. Grafana 대시보드 설계 및 JSON 저장
-  - SLO 현황 대시보드 (가용성, 에러 버짓 소진율)
-  - JVM 분석 대시보드 (Heap, GC, Thread)
-  - 서비스 간 통신 대시보드 (호출 성공률, 레이턴시)
-3. Prometheus Alert Rule 작성
-  - SLO 위반 시 알림
-  - Pod 리소스 이상 감지 알림
-4. dashboards/ 와 alerts/ 디렉토리에 파일 저장
+1. ✅ SLO 정의
+  - order-service 가용성 99.9%, 응답시간 P99 < 500ms
+2. ✅ Grafana 대시보드 설계 및 JSON 저장
+  - SLO 현황 대시보드 (`dashboards/slo-overview.yaml`) — 가용성, 에러율, P99, 주문 처리 현황
+  - JVM 분석 대시보드 (`dashboards/jvm-analysis.yaml`) — Heap/Non-Heap, GC, Thread
+  - 대시보드는 ConfigMap(PrometheusRule 방식과 동일)으로 관리, `grafana_dashboard: "1"` 라벨로 자동 로드
+3. ✅ Prometheus Alert Rule 작성
+  - SLO 위반 시 알림 (`alerts/slo-alerts.yaml`) — 에러율, P99 레이턴시, payment 호출 실패율
+  - Pod 리소스 이상 감지 알림 (`alerts/infra-alerts.yaml`) — CrashLoop, NotReady, 메모리/CPU
+  - PrometheusRule CRD로 관리, `release: my-kube-prometheus-stack` 라벨로 자동 로드
+4. ✅ dashboards/ 와 alerts/ 디렉토리에 파일 저장
 
 ### 완료 기준
 
-- Grafana 대시보드에서 SLO 현황을 한눈에 볼 수 있다.
-- Alert Rule이 Prometheus에 로드되어 있다.
+- Grafana 대시보드에서 SLO 현황을 한눈에 볼 수 있다. ✅
+- Alert Rule이 Prometheus에 로드되어 있다. ✅
 
 ---
 
