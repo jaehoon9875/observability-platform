@@ -47,8 +47,8 @@ observability-platform/
 │   ├── prometheus-stack/         # kube-prometheus-stack Helm values
 │   ├── loki/                     # Loki Helm values
 │   ├── tempo/                    # Tempo Helm values
-│   ├── mysql/                    # MySQL Helm values
-│   ├── kafka/                    # Kafka Helm values
+│   ├── mysql/                    # MySQL Operator CRD (MySQLCluster)
+│   ├── kafka/                    # Kafka Operator CRD (Kafka, KafkaTopic)
 │   ├── redis/                    # Redis Helm values
 │   └── sample-apps/              # 샘플 앱 K8s 매니페스트
 │

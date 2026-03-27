@@ -1,5 +1,13 @@
 # CLAUDE.md — sample-apps
 
+## 코딩 컨벤션
+
+- Java 코드는 Google Java Style Guide를 따른다.
+- 클래스명은 PascalCase, 메서드/변수명은 camelCase.
+- REST API 응답은 `ApiResponse<T>` 공통 포맷으로 감싼다.
+- 예외 처리는 `@RestControllerAdvice`로 중앙 집중 처리한다.
+- 모든 서비스 간 통신은 RestTemplate 또는 OpenFeign을 사용한다.
+
 ## 서비스 구성
 
 Observability 플랫폼의 관측 대상이 되는 MSA 샘플 애플리케이션 3종.
@@ -76,3 +84,11 @@ kubectl rollout status deployment/{service-name} -n observability-platform
 
 모든 서비스에 OpenTelemetry Java Agent가 적용되어 있다.
 trace-id는 HTTP 헤더로 전파되며, Tempo로 수집된다.
+
+## 코드 작성 규칙
+
+- 요청하지 않은 리팩토링 금지.
+- 라이브러리 임의 추가 금지.
+- 파일 구조 임의 변경 금지.
+- 한번에 하나의 기능만 구현할 것.
+- 클래스와 메서드 단위로 한글 주석을 작성할 것.

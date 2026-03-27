@@ -31,21 +31,6 @@ load-tests/        → k6 부하 테스트 시나리오
 scripts/           → 운영 자동화 스크립트
 ```
 
-## Coding Conventions
-
-- Java 코드는 Google Java Style Guide를 따른다.
-- 클래스명은 PascalCase, 메서드/변수명은 camelCase.
-- REST API 응답은 `ApiResponse<T>` 공통 포맷으로 감싼다.
-- 예외 처리는 `@RestControllerAdvice`로 중앙 집중 처리한다.
-- 모든 서비스 간 통신은 RestTemplate 또는 OpenFeign을 사용한다.
-
-## Build & Run Commands
-
-- `./mvnw spring-boot:run` — Spring Boot 앱 실행
-- `./mvnw clean package` — 빌드
-- `./mvnw test` — 테스트 실행
-- `docker build -t {service-name} .` — 컨테이너 이미지 빌드
-
 ## Git Conventions
 
 - 커밋 메시지: `type: 설명` (예: `feat: 주문 API 구현`, `fix: 메트릭 수집 누락 수정`)
@@ -70,8 +55,3 @@ scripts/           → 운영 자동화 스크립트
 - Helm values.yaml 수정 시 기존 주석을 삭제하지 않는다.
 - sample-apps의 각 서비스는 독립적으로 빌드/배포 가능해야 한다.
 - 환경변수는 하드코딩하지 않고 application.yml 또는 K8s ConfigMap/Secret으로 관리한다.
-- 요청하지 않은 리팩토링 금지.
-- 라이브러리 임의 추가 금지.
-- 파일 구조 임의 변경 금지.
-- 한번에 하나의 기능만 구현할 것.
-- 클래스와 메서드 단위로 한글 주석을 작성할 것.
