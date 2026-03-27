@@ -17,12 +17,25 @@ data:
       "time": { "from": "now-1h", "to": "now" },
       "schemaVersion": 36,
       "version": 1,
+      "templating": {
+        "list": [
+          {
+            "name": "job",
+            "type": "query",
+            "label": "서비스",
+            "query": "label_values(http_server_requests_seconds_count, job)",
+            "refresh": 2,
+            "includeAll": false,
+            "current": {}
+          }
+        ]
+      },
       "panels": [
         {
           "id": 1,
           "type": "stat",
           "title": "가용성 (1h)",
-          "description": "최근 1시간 기준 order-service 가용성. SLO 목표: 99.9%",
+          "description": "최근 1시간 기준 가용성. SLO 목표: 99.9%",
           "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 },
           "options": {
             "reduceOptions": { "calcs": ["lastNotNull"] },
@@ -48,7 +61,7 @@ data:
           },
           "targets": [
             {
-              "expr": "1 - (\n  rate(http_server_requests_seconds_count{job=\"order-service\", status=~\"5..\"}[1h])\n  /\n  rate(http_server_requests_seconds_count{job=\"order-service\"}[1h])\n)",
+              "expr": "1 - (\n  (sum(rate(http_server_requests_seconds_count{job=\"$job\", status=~\"5..\"}[1h])) or vector(0))\n  /\n  sum(rate(http_server_requests_seconds_count{job=\"$job\"}[1h]))\n)",
               "legendFormat": "가용성",
               "refId": "A"
             }
@@ -80,7 +93,7 @@ data:
           },
           "targets": [
             {
-              "expr": "rate(http_server_requests_seconds_count{job=\"order-service\", status=~\"5..\"}[5m])\n/\nrate(http_server_requests_seconds_count{job=\"order-service\"}[5m])",
+              "expr": "(sum(rate(http_server_requests_seconds_count{job=\"$job\", status=~\"5..\"}[5m])) or vector(0))\n/\nsum(rate(http_server_requests_seconds_count{job=\"$job\"}[5m]))",
               "legendFormat": "에러율",
               "refId": "A"
             }
@@ -112,7 +125,7 @@ data:
           },
           "targets": [
             {
-              "expr": "histogram_quantile(0.99,\n  rate(http_server_requests_seconds_bucket{job=\"order-service\"}[5m])\n)",
+              "expr": "histogram_quantile(0.99,\n  sum(rate(http_server_requests_seconds_bucket{job=\"$job\"}[5m])) by (le)\n)",
               "legendFormat": "P99",
               "refId": "A"
             }
@@ -133,7 +146,7 @@ data:
           },
           "targets": [
             {
-              "expr": "rate(http_server_requests_seconds_count{job=\"order-service\"}[5m])",
+              "expr": "sum(rate(http_server_requests_seconds_count{job=\"$job\"}[5m]))",
               "legendFormat": "RPS",
               "refId": "A"
             }
@@ -159,7 +172,7 @@ data:
           },
           "targets": [
             {
-              "expr": "rate(http_server_requests_seconds_count{job=\"order-service\", status=~\"5..\"}[5m])\n/\nrate(http_server_requests_seconds_count{job=\"order-service\"}[5m])",
+              "expr": "(sum(rate(http_server_requests_seconds_count{job=\"$job\", status=~\"5..\"}[5m])) or vector(0))\n/\nsum(rate(http_server_requests_seconds_count{job=\"$job\"}[5m]))",
               "legendFormat": "에러율",
               "refId": "A"
             }
@@ -178,17 +191,17 @@ data:
           },
           "targets": [
             {
-              "expr": "histogram_quantile(0.50, rate(http_server_requests_seconds_bucket{job=\"order-service\"}[5m]))",
+              "expr": "histogram_quantile(0.50, sum(rate(http_server_requests_seconds_bucket{job=\"$job\"}[5m])) by (le))",
               "legendFormat": "P50",
               "refId": "A"
             },
             {
-              "expr": "histogram_quantile(0.95, rate(http_server_requests_seconds_bucket{job=\"order-service\"}[5m]))",
+              "expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket{job=\"$job\"}[5m])) by (le))",
               "legendFormat": "P95",
               "refId": "B"
             },
             {
-              "expr": "histogram_quantile(0.99, rate(http_server_requests_seconds_bucket{job=\"order-service\"}[5m]))",
+              "expr": "histogram_quantile(0.99, sum(rate(http_server_requests_seconds_bucket{job=\"$job\"}[5m])) by (le))",
               "legendFormat": "P99",
               "refId": "C"
             }
@@ -231,12 +244,12 @@ data:
           },
           "targets": [
             {
-              "expr": "histogram_quantile(0.99, rate(payment_call_duration_seconds_bucket[5m]))",
+              "expr": "histogram_quantile(0.99, sum(rate(payment_call_duration_seconds_bucket[5m])) by (le))",
               "legendFormat": "P99",
               "refId": "A"
             },
             {
-              "expr": "histogram_quantile(0.50, rate(payment_call_duration_seconds_bucket[5m]))",
+              "expr": "histogram_quantile(0.50, sum(rate(payment_call_duration_seconds_bucket[5m])) by (le))",
               "legendFormat": "P50",
               "refId": "B"
             }
