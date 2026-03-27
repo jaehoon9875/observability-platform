@@ -53,10 +53,10 @@ infra/k6/
 
 ```bash
 # order-service Pod 상태 확인
-kubectl get pods -n observability-platform
+kubectl get pods -n obs-apps
 
 # API 동작 확인 (포트포워딩 후)
-kubectl port-forward svc/order-service 8080:8080 -n observability-platform
+kubectl port-forward svc/order-service 8080:8080 -n obs-apps
 curl -X POST http://localhost:8080/api/orders \
   -H "Content-Type: application/json" \
   -d '{"productId": "1", "quantity": 1, "totalAmount": 10000}'
@@ -79,7 +79,7 @@ kubectl apply -f infra/k6/configmap.yaml
 kubectl apply -f infra/k6/job.yaml
 
 # Job 로그 실시간 확인
-kubectl logs -f job/k6-order-flow -n observability-platform
+kubectl logs -f job/k6-order-flow -n obs-apps
 ```
 
 ### 3. 급증 시나리오로 전환
@@ -89,10 +89,10 @@ kubectl logs -f job/k6-order-flow -n observability-platform
 - `args`: `/scripts/spike-test.js`
 
 ```bash
-kubectl delete job k6-order-flow -n observability-platform
+kubectl delete job k6-order-flow -n obs-apps
 kubectl apply -f infra/k6/job.yaml
 
-kubectl logs -f job/k6-spike-test -n observability-platform
+kubectl logs -f job/k6-spike-test -n obs-apps
 ```
 
 ### 4. 완료 후 정리
@@ -101,9 +101,9 @@ kubectl logs -f job/k6-spike-test -n observability-platform
 수동으로 즉시 삭제하려면:
 
 ```bash
-kubectl delete job k6-order-flow -n observability-platform
+kubectl delete job k6-order-flow -n obs-apps
 # 또는
-kubectl delete job k6-spike-test -n observability-platform
+kubectl delete job k6-spike-test -n obs-apps
 ```
 
 ---
@@ -114,7 +114,7 @@ kubectl delete job k6-spike-test -n observability-platform
 
 ```bash
 kubectl apply -f infra/k6/configmap.yaml
-kubectl delete job k6-order-flow -n observability-platform  # 또는 k6-spike-test
+kubectl delete job k6-order-flow -n obs-apps  # 또는 k6-spike-test
 kubectl apply -f infra/k6/job.yaml
 ```
 

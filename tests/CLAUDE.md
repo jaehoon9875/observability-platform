@@ -16,10 +16,10 @@ K8s Job/ConfigMap 매니페스트는 `infra/k6/` 에서 관리한다.
 
 ## 클러스터 환경 정보
 
-- **테스트 대상 네임스페이스**: `observability-platform`
-- **order-service ClusterIP**: `kubectl get svc order-service -n observability-platform`
+- **테스트 대상 네임스페이스**: `obs-apps`
+- **order-service ClusterIP**: `kubectl get svc order-service -n obs-apps`
 - **k6 이미지**: `grafana/k6:latest`
-- **Job 실행 네임스페이스**: `observability-platform`
+- **Job 실행 네임스페이스**: `obs-apps`
 
 ## 시나리오 설계 원칙
 
@@ -73,6 +73,6 @@ k6 실행 시 `K6_PROMETHEUS_RW_SERVER_URL` 환경변수를 설정하면
 ## 주의사항
 
 - k6 Job은 `restartPolicy: Never`로 설정한다. 실패 시 재시도하지 않도록.
-- `order-service` 내부 ClusterIP를 사용하므로 Job과 같은 네임스페이스(`observability-platform`)에 배포한다.
+- `order-service` 내부 ClusterIP를 사용하므로 Job과 같은 네임스페이스(`obs-apps`)에 배포한다.
 - 시나리오 수정 후에는 ConfigMap을 먼저 업데이트(`kubectl apply`)한 뒤 Job을 재생성한다.
 - 이전 Job이 남아있으면 같은 이름으로 생성되지 않으므로 `kubectl delete job` 후 재실행한다.

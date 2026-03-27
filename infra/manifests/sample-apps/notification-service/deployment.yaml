@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: notification-service
-  namespace: observability-platform
+  namespace: obs-apps
   labels:
     app.kubernetes.io/name: notification-service
     app.kubernetes.io/part-of: observability-platform

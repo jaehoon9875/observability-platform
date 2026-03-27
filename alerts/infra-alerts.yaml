@@ -12,7 +12,7 @@ spec:
         # Pod가 반복적으로 재시작되면 알림 (CrashLoopBackOff 감지)
         - alert: PodCrashLooping
           expr: |
-            rate(kube_pod_container_status_restarts_total{namespace="observability-platform"}[15m]) * 60 * 15 > 1
+            rate(kube_pod_container_status_restarts_total{namespace="obs-apps"}[15m]) * 60 * 15 > 1
           for: 5m
           labels:
             severity: critical
@@ -23,7 +23,7 @@ spec:
         # Pod가 Ready 상태가 아닌 상태로 5분 이상 유지되면 알림
         - alert: PodNotReady
           expr: |
-            kube_pod_status_ready{namespace="observability-platform", condition="true"} == 0
+            kube_pod_status_ready{namespace="obs-apps", condition="true"} == 0
           for: 5m
           labels:
             severity: warning
@@ -36,9 +36,9 @@ spec:
         # 컨테이너 메모리 사용량이 limit의 90%를 초과하면 알림
         - alert: ContainerHighMemoryUsage
           expr: |
-            container_memory_working_set_bytes{namespace="observability-platform", container!=""}
+            container_memory_working_set_bytes{namespace="obs-apps", container!=""}
             /
-            container_spec_memory_limit_bytes{namespace="observability-platform", container!=""}
+            container_spec_memory_limit_bytes{namespace="obs-apps", container!=""}
             > 0.9
           for: 5m
           labels:
@@ -50,9 +50,9 @@ spec:
         # 컨테이너 CPU 사용량이 limit의 90%를 초과하면 알림
         - alert: ContainerHighCpuUsage
           expr: |
-            rate(container_cpu_usage_seconds_total{namespace="observability-platform", container!=""}[5m])
+            rate(container_cpu_usage_seconds_total{namespace="obs-apps", container!=""}[5m])
             /
-            container_spec_cpu_quota{namespace="observability-platform", container!=""} * container_spec_cpu_period{namespace="observability-platform", container!=""}
+            container_spec_cpu_quota{namespace="obs-apps", container!=""} * container_spec_cpu_period{namespace="obs-apps", container!=""}
             > 0.9
           for: 5m
           labels:

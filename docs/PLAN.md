@@ -72,6 +72,13 @@ Observability 스택의 관측 대상이 되는 첫 번째 MSA 앱을 만든다.
 - order → payment 호출 시 Tempo에서 분산 트레이스가 보인다.
 - Kafka를 통한 비동기 통신이 동작한다.
 
+### 추후 개선 (미완료)
+
+- [ ] 로그 ↔ 트레이스 연결 (Log-Trace Correlation)
+  - OTel Agent가 로그에 심는 `trace_id`를 Alloy가 Loki로 전달하도록 파이프라인 설정
+  - Grafana Loki 데이터소스에 Derived Fields 설정 → 로그에서 trace_id 클릭 시 Tempo로 이동
+  - 현재 Alloy로 Pod 로그를 수집하고 있으나 trace_id 연결은 미설정 상태
+
 ---
 
 ## 3단계: 대시보드 및 Alert Rule 설계

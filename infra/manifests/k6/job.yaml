@@ -4,7 +4,7 @@ metadata:
   # 시나리오 전환 시 name을 변경 (run-k6.sh가 자동 처리)
   # 예: k6-order-flow, k6-spike-test
   name: k6-order-flow
-  namespace: observability-platform
+  namespace: obs-apps
   labels:
     app.kubernetes.io/name: k6
     app.kubernetes.io/part-of: observability-platform

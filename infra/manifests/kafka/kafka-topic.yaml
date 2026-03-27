@@ -3,7 +3,7 @@ apiVersion: kafka.strimzi.io/v1beta2
 kind: KafkaTopic
 metadata:
   name: my-topic
-  namespace: observability-platform
+  namespace: obs-apps
   labels:
     strimzi.io/cluster: kafka
     app.kubernetes.io/name: kafka-topic
@@ -18,7 +18,7 @@ apiVersion: kafka.strimzi.io/v1beta2
 kind: KafkaTopic
 metadata:
   name: order-completed
-  namespace: observability-platform
+  namespace: obs-apps
   labels:
     strimzi.io/cluster: kafka
     app.kubernetes.io/name: kafka-topic

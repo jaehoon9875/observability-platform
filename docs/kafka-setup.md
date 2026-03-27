@@ -62,21 +62,21 @@ Operator는 Kafka 클러스터의 생성/관리/복구를 자동으로 처리하
 
 ```bash
 # 네임스페이스가 없을 경우 먼저 생성
-kubectl create namespace observability-platform
+kubectl create namespace obs-apps
 
 # Helm 레포 추가
 helm repo add strimzi https://strimzi.io/charts/
 helm repo update
 
 helm install strimzi-operator strimzi/strimzi-kafka-operator \
-  --namespace observability-platform \
-  --set watchNamespaces="{observability-platform}"
+  --namespace obs-apps \
+  --set watchNamespaces="{obs-apps}"
 ```
 
 ### ✅ 설치 확인
 
 ```bash
-kubectl get pods -n observability-platform
+kubectl get pods -n obs-apps
 
 # 아래처럼 Running 상태여야 정상
 # strimzi-cluster-operator-xxx   1/1   Running
@@ -101,7 +101,7 @@ Strimzi가 CRD(Custom Resource Definition)를 읽고 실제 Pod를 자동으로 
 kubectl apply -f infra/kafka/kafka-cluster.yaml
 
 # Pod 상태 확인 (2~3분 소요)
-kubectl get pods -n observability-platform -w
+kubectl get pods -n obs-apps -w
 
 # 정상 상태
 # kafka-controller-0              1/1   Running
@@ -115,10 +115,10 @@ kubectl get pods -n observability-platform -w
 
 ```bash
 # Pod 상세 정보 (Events 섹션에서 원인 확인)
-kubectl describe pod kafka-controller-0 -n observability-platform
+kubectl describe pod kafka-controller-0 -n obs-apps
 
 # Operator 로그 확인
-kubectl logs -l name=strimzi-cluster-operator -n observability-platform
+kubectl logs -l name=strimzi-cluster-operator -n obs-apps
 ```
 
 ---
@@ -136,7 +136,7 @@ kubectl logs -l name=strimzi-cluster-operator -n observability-platform
 kubectl apply -f infra/kafka/kafka-topic.yaml
 
 # 토픽 생성 확인 (READY: True 여야 정상)
-kubectl get kafkatopic -n observability-platform
+kubectl get kafkatopic -n obs-apps
 ```
 
 ---
@@ -151,7 +151,7 @@ helm repo add kafka-ui https://provectus.github.io/kafka-ui-charts
 helm repo update
 
 helm install kafka-ui kafka-ui/kafka-ui \
-  --namespace observability-platform \
+  --namespace obs-apps \
   --set kafkaClusters[0].name=kafka \
   --set kafkaClusters[0].bootstrapServers=kafka-kafka-bootstrap:9092 \
   --set service.type=NodePort \
@@ -162,8 +162,8 @@ helm install kafka-ui kafka-ui/kafka-ui \
 
 ```bash
 # Pod 및 Service 상태 확인
-kubectl get pods -n observability-platform
-kubectl get svc -n observability-platform
+kubectl get pods -n obs-apps
+kubectl get svc -n obs-apps
 
 # 서버 IP 확인
 kubectl get nodes -o wide

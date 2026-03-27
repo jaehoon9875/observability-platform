@@ -12,13 +12,13 @@
 
 ```bash
 # order-service (주요 진입점)
-kubectl port-forward svc/order-service 8080:8080 -n observability-platform
+kubectl port-forward svc/order-service 8080:8080 -n obs-apps
 
 # payment-service (직접 테스트 시)
-kubectl port-forward svc/payment-service 8081:8080 -n observability-platform
+kubectl port-forward svc/payment-service 8081:8080 -n obs-apps
 
 # notification-service (직접 테스트 시)
-kubectl port-forward svc/notification-service 8082:8080 -n observability-platform
+kubectl port-forward svc/notification-service 8082:8080 -n obs-apps
 
 # Grafana (로컬에서 접근 시)
 kubectl port-forward svc/grafana 3000:80 -n monitoring
@@ -159,10 +159,10 @@ curl http://localhost:8080/actuator/health
 
 ```bash
 # Agent 기동 메시지 확인
-kubectl logs deployment/order-service -n observability-platform | grep -i "otel\|javaagent"
+kubectl logs deployment/order-service -n obs-apps | grep -i "otel\|javaagent"
 
 # 트레이스 전송 오류 없는지 확인
-kubectl logs deployment/order-service -n observability-platform | grep -i "error" | grep -i "otel"
+kubectl logs deployment/order-service -n obs-apps | grep -i "error" | grep -i "otel"
 ```
 
 ---
@@ -173,10 +173,10 @@ kubectl logs deployment/order-service -n observability-platform | grep -i "error
 
 ```bash
 # 실시간 로그 스트림
-kubectl logs -f deployment/notification-service -n observability-platform
+kubectl logs -f deployment/notification-service -n obs-apps
 
 # 알림 처리 완료 메시지만 필터
-kubectl logs deployment/notification-service -n observability-platform | grep "알림 처리"
+kubectl logs deployment/notification-service -n obs-apps | grep "알림 처리"
 ```
 
 **정상 로그 예시:**
@@ -189,7 +189,7 @@ INFO ... 알림 처리 완료: orderId=1
 
 ```bash
 # Kafka 파드 접속
-kubectl exec -it <kafka-pod> -n observability-platform -- bash
+kubectl exec -it <kafka-pod> -n obs-apps -- bash
 
 # 토픽 메시지 확인
 kafka-console-consumer.sh \
@@ -206,10 +206,10 @@ kafka-console-consumer.sh \
 
 ```bash
 # 전체 파드 상태
-kubectl get pods -n observability-platform
+kubectl get pods -n obs-apps
 
 # 파드 상세 (이벤트 포함)
-kubectl describe pod <pod-name> -n observability-platform
+kubectl describe pod <pod-name> -n obs-apps
 ```
 
 ### 이미지 업데이트 후 재배포
@@ -219,17 +219,17 @@ kubectl describe pod <pod-name> -n observability-platform
 kubectl apply -f infra/sample-apps/order-service/deployment.yaml
 
 # yaml 변경 없이 이미지만 새로 당길 때
-kubectl rollout restart deployment/order-service -n observability-platform
+kubectl rollout restart deployment/order-service -n obs-apps
 
 # 롤아웃 진행 상태 확인
-kubectl rollout status deployment/order-service -n observability-platform
+kubectl rollout status deployment/order-service -n obs-apps
 ```
 
 ### 환경변수 주입 확인
 
 ```bash
 # OTel 환경변수 확인
-kubectl exec -it <pod-name> -n observability-platform -- env | grep OTEL
+kubectl exec -it <pod-name> -n obs-apps -- env | grep OTEL
 ```
 
 ---

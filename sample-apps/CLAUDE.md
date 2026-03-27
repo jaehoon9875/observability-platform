@@ -58,17 +58,17 @@ docker buildx build \
 
 ## Kubernetes 배포
 
-네임스페이스: `observability-platform`
+네임스페이스: `obs-apps`
 
 ```bash
 # 매니페스트 적용 (최초 배포 또는 K8s 설정 변경 시)
 kubectl apply -f infra/sample-apps/{service-name}/
 
 # 새 이미지 반영 (이미지만 변경됐을 때 — imagePullPolicy: Always)
-kubectl rollout restart deployment/{service-name} -n observability-platform
+kubectl rollout restart deployment/{service-name} -n obs-apps
 
 # 롤아웃 완료 확인
-kubectl rollout status deployment/{service-name} -n observability-platform
+kubectl rollout status deployment/{service-name} -n obs-apps
 ```
 
 ## 커스텀 메트릭 (order-service)

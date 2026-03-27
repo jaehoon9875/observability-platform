@@ -4,7 +4,7 @@ apiVersion: kafka.strimzi.io/v1
 kind: KafkaNodePool
 metadata:
   name: controller
-  namespace: observability-platform
+  namespace: obs-apps
   labels:
     strimzi.io/cluster: kafka
     app.kubernetes.io/name: kafka
@@ -33,7 +33,7 @@ apiVersion: kafka.strimzi.io/v1
 kind: Kafka
 metadata:
   name: kafka
-  namespace: observability-platform
+  namespace: obs-apps
   labels:
     app.kubernetes.io/name: kafka
     app.kubernetes.io/part-of: observability-platform

@@ -11,7 +11,7 @@ ArgoCD가 이 디렉토리를 감시하며, Git push 시 클러스터에 자동 
 - 네임스페이스 구성:
   - `monitoring` — Prometheus, Grafana, Loki, Tempo, Alloy
   - `argocd` — ArgoCD
-  - `observability-platform` — sample-apps 및 의존 오픈소스 배포
+  - `obs-apps` — sample-apps 및 의존 오픈소스 배포
     - order-service, payment-service, notification-service
     - MySQL, Kafka, Redis
 
@@ -96,7 +96,7 @@ persistence:
 - 각 ArgoCD Application은 이 레포의 특정 하위 경로를 source로 지정한다.
 - 동기화 정책: 자동 동기화 (auto-sync) + 자동 프루닝 (auto-prune)
 - Helm Application 예시: `infra/helm/prometheus-stack/` → monitoring 네임스페이스에 동기화
-- Manifest Application 예시: `infra/manifests/sample-apps/` → observability-platform 네임스페이스에 동기화
+- Manifest Application 예시: `infra/manifests/sample-apps/` → obs-apps 네임스페이스에 동기화
 
 ### ArgoCD Application 예시 (manifests 방식)
 
@@ -113,7 +113,7 @@ spec:
     targetRevision: main
   destination:
     server: https://kubernetes.default.svc
-    namespace: observability-platform
+    namespace: obs-apps
   syncPolicy:
     automated:
       prune: true       # Git에서 삭제하면 클러스터에서도 삭제
@@ -178,7 +178,7 @@ MySQL은 **MySQL Operator(InnoDBCluster)** 패턴으로 배포되어 있다.
 
 ```bash
 # 레이블 셀렉터로 찾으면 items가 비어있어 오류 발생 → 파드명을 직접 지정할 것
-kubectl exec -it mysql-cluster-0 -n observability-platform \
+kubectl exec -it mysql-cluster-0 -n obs-apps \
   -c mysql -- mysql -uroot -p
 ```
 
