@@ -5,14 +5,18 @@ import { Rate } from 'k6/metrics';
 // 목표: Alert Rule (HighErrorRate, HighP99Latency) 트리거 검증
 const errorRate = new Rate('order_error_rate');
 
+// 환경변수로 부하 설정 제어 (기본값: 홈서버 기준)
+const BASE_VUS  = parseInt(__ENV.BASE_VUS)  || 5;
+const SPIKE_VUS = parseInt(__ENV.SPIKE_VUS) || 20;
+const SLEEP_SEC = parseFloat(__ENV.SLEEP)   || 0.3;
+
 export const options = {
-  // 급증 시나리오: 기준 트래픽 → 갑작스러운 스파이크 → 회복
   stages: [
-    { duration: '1m',  target: 5  },  // 기준 트래픽 (워밍업)
-    { duration: '30s', target: 20 },  // 급증 (4배)
-    { duration: '2m',  target: 20 },  // 급증 유지 — Alert 트리거 대기 (for: 2m)
-    { duration: '30s', target: 5  },  // 회복
-    { duration: '1m',  target: 5  },  // 기준 트래픽 유지 (Alert 해소 확인)
+    { duration: '1m',  target: BASE_VUS  },  // 기준 트래픽 (워밍업)
+    { duration: '30s', target: SPIKE_VUS },  // 급증
+    { duration: '2m',  target: SPIKE_VUS },  // 급증 유지 — Alert 트리거 대기 (for: 2m)
+    { duration: '30s', target: BASE_VUS  },  // 회복
+    { duration: '1m',  target: BASE_VUS  },  // 기준 트래픽 유지 (Alert 해소 확인)
   ],
   // spike-test는 SLO 위반이 목표이므로 thresholds를 느슨하게 설정
   thresholds: {
@@ -20,8 +24,7 @@ export const options = {
   },
 };
 
-const BASE_URL = __ENV.BASE_URL || 'http://order-service:8080';
-
+const BASE_URL    = __ENV.BASE_URL || 'http://order-service:8080';
 const PRODUCTS    = ['1', '2', '3', '4', '5'];
 const UNIT_PRICES = [5000, 10000, 15000, 20000, 30000];
 
@@ -51,5 +54,5 @@ export default function () {
 
   errorRate.add(!success);
 
-  sleep(0.3);
+  sleep(SLEEP_SEC);
 }

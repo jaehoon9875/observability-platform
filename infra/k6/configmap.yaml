@@ -12,11 +12,17 @@ data:
     const errorRate = new Rate('order_error_rate');
     const orderDuration = new Trend('order_duration_ms');
 
+    const MAX_VUS      = parseInt(__ENV.MAX_VUS)   || 10;
+    const SLEEP_SEC    = parseFloat(__ENV.SLEEP)   || 1.0;
+    const RAMPUP_DUR   = __ENV.RAMPUP_DUR          || '1m';
+    const SUSTAIN_DUR  = __ENV.SUSTAIN_DUR         || '3m';
+    const RAMPDOWN_DUR = __ENV.RAMPDOWN_DUR        || '1m';
+
     export const options = {
       stages: [
-        { duration: '1m', target: 10 },
-        { duration: '3m', target: 10 },
-        { duration: '1m', target: 0 },
+        { duration: RAMPUP_DUR,   target: MAX_VUS },
+        { duration: SUSTAIN_DUR,  target: MAX_VUS },
+        { duration: RAMPDOWN_DUR, target: 0 },
       ],
       thresholds: {
         http_req_failed:   ['rate<0.001'],
@@ -49,7 +55,7 @@ data:
       });
       errorRate.add(!success);
       orderDuration.add(res.timings.duration);
-      sleep(1);
+      sleep(SLEEP_SEC);
     }
 
   spike-test.js: |
@@ -59,13 +65,17 @@ data:
 
     const errorRate = new Rate('order_error_rate');
 
+    const BASE_VUS  = parseInt(__ENV.BASE_VUS)  || 5;
+    const SPIKE_VUS = parseInt(__ENV.SPIKE_VUS) || 20;
+    const SLEEP_SEC = parseFloat(__ENV.SLEEP)   || 0.3;
+
     export const options = {
       stages: [
-        { duration: '1m',  target: 5  },
-        { duration: '30s', target: 20 },
-        { duration: '2m',  target: 20 },
-        { duration: '30s', target: 5  },
-        { duration: '1m',  target: 5  },
+        { duration: '1m',  target: BASE_VUS  },
+        { duration: '30s', target: SPIKE_VUS },
+        { duration: '2m',  target: SPIKE_VUS },
+        { duration: '30s', target: BASE_VUS  },
+        { duration: '1m',  target: BASE_VUS  },
       ],
       thresholds: {
         http_req_failed: ['rate<0.5'],
@@ -94,5 +104,5 @@ data:
         'status is 2xx': (r) => r.status >= 200 && r.status < 300,
       });
       errorRate.add(!success);
-      sleep(0.3);
+      sleep(SLEEP_SEC);
     }

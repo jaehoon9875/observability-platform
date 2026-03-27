@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  # 시나리오 전환 시 name을 변경하거나 기존 Job을 먼저 삭제 후 재적용
+  # 시나리오 전환 시 name을 변경 (run-k6.sh가 자동 처리)
   # 예: k6-order-flow, k6-spike-test
   name: k6-order-flow
   namespace: observability-platform
@@ -9,7 +9,7 @@ metadata:
     app.kubernetes.io/name: k6
     app.kubernetes.io/part-of: observability-platform
 spec:
-  # Job 완료 후 자동 정리 (초 단위, 0 = 즉시 삭제하지 않음)
+  # Job 완료 후 5분 뒤 자동 정리
   ttlSecondsAfterFinished: 300
   template:
     metadata:
@@ -20,21 +20,40 @@ spec:
       containers:
         - name: k6
           image: grafana/k6:latest
-          # 실행할 시나리오 파일명을 여기서 변경
-          # order-flow.js 또는 spike-test.js
+          # 실행할 시나리오 파일명 (run-k6.sh가 자동 처리)
           args:
             - run
             - /scripts/order-flow.js
           env:
             - name: BASE_URL
               value: "http://order-service:8080"
+
+            # --- order-flow 설정 ---
+            - name: MAX_VUS
+              value: "10"
+            - name: SLEEP
+              value: "1.0"
+            - name: RAMPUP_DUR
+              value: "1m"
+            - name: SUSTAIN_DUR
+              value: "3m"
+            - name: RAMPDOWN_DUR
+              value: "1m"
+
+            # --- spike-test 설정 ---
+            - name: BASE_VUS
+              value: "5"
+            - name: SPIKE_VUS
+              value: "20"
+            # SLEEP은 위와 공유 (spike-test 기본값은 스크립트에서 0.3으로 override)
+
             # --- Prometheus Remote Write 연동 (선택) ---
-            # 아래 두 항목의 주석을 해제하면 k6 메트릭이 Prometheus로 전송된다.
-            # args에 "--out" "experimental-prometheus-rw" 도 함께 추가해야 한다.
+            # 아래 두 항목의 주석을 해제하고 args에 "--out" "experimental-prometheus-rw" 추가
             # - name: K6_PROMETHEUS_RW_SERVER_URL
             #   value: "http://kube-prometheus-stack-prometheus.monitoring.svc:9090/api/v1/write"
             # - name: K6_PROMETHEUS_RW_PUSH_INTERVAL
             #   value: "5s"
+
           volumeMounts:
             - name: scripts
               mountPath: /scripts
