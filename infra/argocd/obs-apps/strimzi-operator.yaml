@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: strimzi-operator
+  namespace: argocd
+spec:
+  project: default
+  # 주의: Operator 삭제 시 관리 중인 Kafka 클러스터에 영향 가능
+  # kafka Application보다 먼저 sync되어야 함
+  sources:
+    - repoURL: https://strimzi.io/charts/
+      chart: strimzi-kafka-operator
+      targetRevision: 0.51.0
+      helm:
+        valueFiles:
+          - $values/infra/helm/strimzi-operator/custom-values.yaml
+    - repoURL: https://github.com/jaehoon9875/observability-platform
+      targetRevision: main
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: obs-apps
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

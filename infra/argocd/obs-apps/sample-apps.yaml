@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: sample-apps
+  namespace: argocd
+spec:
+  project: default
+  # Deployment/Service/ConfigMap → obs-apps 네임스페이스
+  # ServiceMonitor → manifests에 namespace: monitoring 명시되어 있으므로 그대로 적용됨
+  # 주의: DB Secret(order-service-secret, payment-service-secret)은
+  #       ArgoCD 관리 밖에서 수동으로 먼저 생성해야 함
+  source:
+    repoURL: https://github.com/jaehoon9875/observability-platform
+    path: infra/manifests/sample-apps
+    targetRevision: main
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: obs-apps
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
