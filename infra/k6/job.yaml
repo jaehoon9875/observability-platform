@@ -1,0 +1,51 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  # 시나리오 전환 시 name을 변경하거나 기존 Job을 먼저 삭제 후 재적용
+  # 예: k6-order-flow, k6-spike-test
+  name: k6-order-flow
+  namespace: observability-platform
+  labels:
+    app.kubernetes.io/name: k6
+    app.kubernetes.io/part-of: observability-platform
+spec:
+  # Job 완료 후 자동 정리 (초 단위, 0 = 즉시 삭제하지 않음)
+  ttlSecondsAfterFinished: 300
+  template:
+    metadata:
+      labels:
+        app: k6
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: k6
+          image: grafana/k6:latest
+          # 실행할 시나리오 파일명을 여기서 변경
+          # order-flow.js 또는 spike-test.js
+          args:
+            - run
+            - /scripts/order-flow.js
+          env:
+            - name: BASE_URL
+              value: "http://order-service:8080"
+            # --- Prometheus Remote Write 연동 (선택) ---
+            # 아래 두 항목의 주석을 해제하면 k6 메트릭이 Prometheus로 전송된다.
+            # args에 "--out" "experimental-prometheus-rw" 도 함께 추가해야 한다.
+            # - name: K6_PROMETHEUS_RW_SERVER_URL
+            #   value: "http://kube-prometheus-stack-prometheus.monitoring.svc:9090/api/v1/write"
+            # - name: K6_PROMETHEUS_RW_PUSH_INTERVAL
+            #   value: "5s"
+          volumeMounts:
+            - name: scripts
+              mountPath: /scripts
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+      volumes:
+        - name: scripts
+          configMap:
+            name: k6-scripts

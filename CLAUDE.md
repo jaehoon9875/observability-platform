@@ -27,7 +27,7 @@ custom-exporter/   → 커스텀 Prometheus Exporter
 infra/             → Helm values, ArgoCD manifests, K8s manifests
 dashboards/        → Grafana 대시보드 JSON
 alerts/            → Prometheus Alert Rule YAML
-load-tests/        → k6 부하 테스트 시나리오
+tests/             → k6 부하 테스트 시나리오 (load-test/, spike-test/)
 scripts/           → 운영 자동화 스크립트
 ```
 

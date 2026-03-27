@@ -60,9 +60,11 @@ observability-platform/
 │   ├── slo-alerts.yaml           # SLO 기반 알림 규칙
 │   └── infra-alerts.yaml         # 인프라 상태 알림 규칙
 │
-├── load-tests/                   # k6 부하 테스트 시나리오
-│   ├── order-flow.js             # 주문 흐름 부하 테스트
-│   └── spike-test.js             # 트래픽 급증 시뮬레이션
+├── tests/                        # k6 부하 테스트 시나리오
+│   ├── load-test/                # 정상 트래픽 부하 테스트
+│   │   └── order-flow.js
+│   └── spike-test/               # 트래픽 급증 시뮬레이션
+│       └── spike-test.js
 │
 └── scripts/                      # 운영 자동화 스크립트
     ├── incident-collector.sh     # 장애 시 진단 정보 자동 수집
@@ -121,12 +123,13 @@ SLO 기반의 Alert Rule을 정의합니다.
 - 에러율이 SLO 임계치를 초과할 때 알림
 - Pod 리소스 사용량 이상 감지
 
-### load-tests/
+### tests/
 
-k6로 작성한 부하 테스트 시나리오입니다.
+k6로 작성한 부하 테스트 시나리오입니다. 테스트 유형별로 서브디렉토리로 구분합니다.
 
-- 정상 트래픽 시뮬레이션 및 급증(spike) 시나리오
-- 테스트 결과를 Prometheus 메트릭으로 내보내 Grafana에서 시각화
+- `load-test/`: 정상 트래픽 시뮬레이션 (점진적 VU 증가)
+- `spike-test/`: 갑작스러운 트래픽 급증 시뮬레이션 (Alert Rule 트리거 검증)
+- 테스트 결과를 Prometheus 메트릭으로 내보내 Grafana에서 시각화 가능
 
 ### scripts/
 
