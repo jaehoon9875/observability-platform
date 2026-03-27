@@ -10,6 +10,14 @@ COPY pom.xml .
 # 의존성만 먼저 캐싱
 RUN ./mvnw dependency:go-offline -q
 
+# OTel Java Agent 다운로드 (의존성 캐싱 이후, 소스 빌드 이전에 수행)
+# dependency:copy: Maven 로컬 레포가 아닌 지정 경로에 직접 파일로 복사
+RUN ./mvnw dependency:copy \
+    -Dartifact=io.opentelemetry.javaagent:opentelemetry-javaagent:2.10.0:jar \
+    -DoutputDirectory=/workspace \
+    -Dmdep.stripVersion=true \
+    -q
+
 COPY src src
 RUN ./mvnw package -DskipTests -q
 
@@ -21,13 +29,13 @@ WORKDIR /app
 RUN groupadd -r appgroup && useradd -r -g appgroup appuser
 USER appuser
 
-# OTel Java Agent (2단계에서 분산 트레이싱 활성화)
-# COPY --from=build /workspace/otel-javaagent.jar /app/otel-javaagent.jar
-
+COPY --from=build /workspace/opentelemetry-javaagent.jar /app/otel-javaagent.jar
 COPY --from=build /workspace/target/*.jar app.jar
 
 EXPOSE 8080
 
+# -javaagent로 OTel Agent 활성화, 나머지 설정은 K8s 환경변수로 주입
 ENTRYPOINT ["java", \
+  "-javaagent:/app/otel-javaagent.jar", \
   "-Djava.security.egd=file:/dev/./urandom", \
   "-jar", "app.jar"]
