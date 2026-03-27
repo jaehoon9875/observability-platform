@@ -56,13 +56,16 @@ observability-platform/
 │
 ├── infra/                        # IaC + GitOps 매니페스트
 │   ├── argocd/                   # ArgoCD Application 정의
-│   ├── prometheus-stack/         # kube-prometheus-stack Helm values
-│   ├── loki/                     # Loki Helm values
-│   ├── tempo/                    # Tempo Helm values
-│   ├── mysql/                    # MySQL Operator CRD (MySQLCluster)
-│   ├── kafka/                    # Kafka Operator CRD (Kafka, KafkaTopic)
-│   ├── redis/                    # Redis Helm values
-│   └── sample-apps/              # 샘플 앱 K8s 매니페스트
+│   ├── helm/                     # Helm chart로 관리하는 스택
+│   │   ├── prometheus-stack/     #   kube-prometheus-stack (values.yaml + custom-values.yaml)
+│   │   ├── loki/                 #   Loki
+│   │   ├── tempo/                #   Tempo
+│   │   └── redis/                #   Redis
+│   └── manifests/                # Raw K8s 매니페스트 (kubectl apply / ArgoCD)
+│       ├── kafka/                #   Kafka Operator CRD
+│       ├── mysql/                #   MySQL Operator InnoDBCluster
+│       ├── sample-apps/          #   order / payment / notification service
+│       └── k6/                   #   k6 부하 테스트 Job
 │
 ├── dashboards/                   # Grafana 대시보드 JSON
 │   ├── slo-overview.json         # SLO 현황 대시보드
