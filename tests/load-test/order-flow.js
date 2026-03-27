@@ -15,9 +15,9 @@ export const options = {
   ],
   thresholds: {
     // SLO 기준: 가용성 99.9%, P99 레이턴시 500ms
-    http_req_failed:                  ['rate<0.001'],
-    'http_req_duration{p(99)}':       ['p(99)<500'],
-    order_error_rate:                 ['rate<0.001'],
+    http_req_failed:   ['rate<0.001'],
+    http_req_duration: ['p(99)<500'],
+    order_error_rate:  ['rate<0.001'],
   },
 };
 

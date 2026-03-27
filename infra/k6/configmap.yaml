@@ -19,9 +19,9 @@ data:
         { duration: '1m', target: 0 },
       ],
       thresholds: {
-        http_req_failed:            ['rate<0.001'],
-        'http_req_duration{p(99)}': ['p(99)<500'],
-        order_error_rate:           ['rate<0.001'],
+        http_req_failed:   ['rate<0.001'],
+        http_req_duration: ['p(99)<500'],
+        order_error_rate:  ['rate<0.001'],
       },
     };
 
