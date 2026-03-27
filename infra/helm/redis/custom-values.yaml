@@ -1,5 +1,5 @@
 # bitnami/redis 커스텀 설정
-# chart version: 19.6.4 / app version: 7.2.5
+# chart version: 25.3.7 / app version: 8.6.1
 auth:
   enabled: false
 
