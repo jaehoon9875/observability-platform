@@ -109,10 +109,12 @@ SLO 기반 모니터링 체계를 구축한다.
 
 ### 할 일
 
-1. k6 테스트 시나리오 작성
+1. ✅ k6 테스트 시나리오 작성
   - 정상 트래픽 시나리오 (order-flow.js)
   - 급증(spike) 시나리오 (spike-test.js)
-2. 부하 테스트 실행 후 Grafana에서 메트릭 변화 확인
+2. ✅ 부하 테스트 실행 후 Grafana에서 메트릭 변화 확인
+  - SLO Overview: 에러율 0%, req/s 변화 확인
+  - JVM Analysis: GC 일시정지 시간 증가, 스레드 상태별 현황 변화 확인
 3. 병목 지점 분석 및 문서화
 4. (선택) k6 결과를 Prometheus로 내보내 Grafana에서 시각화
 
