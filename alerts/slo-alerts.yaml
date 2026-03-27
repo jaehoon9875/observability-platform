@@ -1,0 +1,54 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: slo-alerts
+  namespace: monitoring
+  labels:
+    release: my-kube-prometheus-stack
+spec:
+  groups:
+    - name: slo.order-service
+      rules:
+        # order-service 에러율이 SLO 임계치(0.1%)를 초과하면 알림
+        - alert: OrderServiceHighErrorRate
+          expr: |
+            rate(http_server_requests_seconds_count{job="order-service", status=~"5.."}[5m])
+            /
+            rate(http_server_requests_seconds_count{job="order-service"}[5m])
+            > 0.001
+          for: 5m
+          labels:
+            severity: critical
+            service: order-service
+          annotations:
+            summary: "order-service 에러율 SLO 위반"
+            description: "order-service 에러율이 {{ $value | humanizePercentage }} 로 SLO 임계치(0.1%)를 초과했습니다."
+
+        # order-service P99 응답시간이 500ms를 초과하면 알림
+        - alert: OrderServiceHighLatency
+          expr: |
+            histogram_quantile(0.99,
+              rate(http_server_requests_seconds_bucket{job="order-service"}[5m])
+            ) > 0.5
+          for: 5m
+          labels:
+            severity: warning
+            service: order-service
+          annotations:
+            summary: "order-service P99 레이턴시 SLO 위반"
+            description: "order-service P99 응답시간이 {{ $value | humanizeDuration }} 으로 SLO 임계치(500ms)를 초과했습니다."
+
+        # payment-service 호출 실패율이 5%를 초과하면 알림
+        - alert: PaymentCallHighErrorRate
+          expr: |
+            rate(payment_call_duration_seconds_count{status="error"}[5m])
+            /
+            rate(payment_call_duration_seconds_count[5m])
+            > 0.05
+          for: 5m
+          labels:
+            severity: critical
+            service: order-service
+          annotations:
+            summary: "payment-service 호출 실패율 급증"
+            description: "payment-service 호출 실패율이 {{ $value | humanizePercentage }} 입니다."
