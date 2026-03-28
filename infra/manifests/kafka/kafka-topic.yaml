@@ -1,5 +1,5 @@
 # KafkaTopic은 v1beta2 사용 (Strimzi 버전에 따라 deprecated 시 v1으로 변경)
-apiVersion: kafka.strimzi.io/v1beta2
+apiVersion: kafka.strimzi.io/v1
 kind: KafkaTopic
 metadata:
   name: my-topic
@@ -14,7 +14,7 @@ spec:
   config:
     retention.ms: 604800000  # 메시지 보관 기간 7일
 ---
-apiVersion: kafka.strimzi.io/v1beta2
+apiVersion: kafka.strimzi.io/v1
 kind: KafkaTopic
 metadata:
   name: order-completed

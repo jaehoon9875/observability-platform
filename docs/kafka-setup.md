@@ -88,17 +88,17 @@ kubectl get pods -n obs-apps
 
 ## Step 2. Kafka 클러스터 생성
 
-`infra/kafka/kafka-cluster.yaml`을 적용하여 Kafka 클러스터를 생성합니다.
+`infra/manifests/kafka/kafka-cluster.yaml`을 적용하여 Kafka 클러스터를 생성합니다.
 Strimzi가 CRD(Custom Resource Definition)를 읽고 실제 Pod를 자동으로 생성해줍니다.
 
-> 클러스터 정의 파일: [`infra/kafka/kafka-cluster.yaml`](../infra/kafka/kafka-cluster.yaml)
+> 클러스터 정의 파일: [`infra/manifests/kafka/kafka-cluster.yaml`](../infra/manifests/kafka/kafka-cluster.yaml)
 > - `KafkaNodePool`: 노드의 역할, 스토리지, replica 수 정의 (broker + controller 겸임, 싱글 노드용)
 > - `Kafka`: 클러스터 전체 설정 (리스너, Kafka 버전 등)
 
 ### 적용 및 확인
 
 ```bash
-kubectl apply -f infra/kafka/kafka-cluster.yaml
+kubectl apply -f infra/manifests/kafka/kafka-cluster.yaml
 
 # Pod 상태 확인 (2~3분 소요)
 kubectl get pods -n obs-apps -w
@@ -127,13 +127,13 @@ kubectl logs -l name=strimzi-cluster-operator -n obs-apps
 
 토픽도 CRD로 선언합니다. Strimzi의 entity-operator가 이를 읽고 Kafka 내부에 실제 토픽을 생성해줍니다.
 
-> 토픽 정의 파일: [`infra/kafka/kafka-topic.yaml`](../infra/kafka/kafka-topic.yaml)
+> 토픽 정의 파일: [`infra/manifests/kafka/kafka-topic.yaml`](../infra/manifests/kafka/kafka-topic.yaml)
 > - `strimzi.io/cluster` 라벨로 어떤 Kafka 클러스터에 생성할지 지정 (필수)
 
 ### 적용 및 확인
 
 ```bash
-kubectl apply -f infra/kafka/kafka-topic.yaml
+kubectl apply -f infra/manifests/kafka/kafka-topic.yaml
 
 # 토픽 생성 확인 (READY: True 여야 정상)
 kubectl get kafkatopic -n obs-apps
@@ -151,11 +151,9 @@ helm repo add kafka-ui https://provectus.github.io/kafka-ui-charts
 helm repo update
 
 helm install kafka-ui kafka-ui/kafka-ui \
+  --version 0.7.6 \
   --namespace obs-apps \
-  --set kafkaClusters[0].name=kafka \
-  --set kafkaClusters[0].bootstrapServers=kafka-kafka-bootstrap:9092 \
-  --set service.type=NodePort \
-  --set service.nodePort=30080
+  -f infra/helm/kafka-ui/custom-values.yaml
 ```
 
 ### 확인 및 접속

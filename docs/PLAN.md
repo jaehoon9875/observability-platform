@@ -39,7 +39,7 @@ Observability 스택의 관측 대상이 되는 첫 번째 MSA 앱을 만든다.
   kubectl create secret generic order-service-secret \
     --from-literal=DB_USERNAME=root \
     --from-literal=DB_PASSWORD=<password> \
-    -n apps
+    -n obs-apps
   ```
 
 ### 완료 기준
