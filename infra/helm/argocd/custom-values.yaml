@@ -5,11 +5,12 @@
 
 # 싱글노드 홈서버 환경 최적화
 
-server:
-  # TLS 없이 접근 허용 (Cloudflare Tunnel이 TLS 처리)
-  extraArgs:
-    - --insecure
+configs:
+  params:
+    # Cloudflare Tunnel이 TLS 처리 — ArgoCD는 HTTP로만 서비스
+    server.insecure: "true"
 
+server:
   resources:
     requests:
       cpu: 100m
