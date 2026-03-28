@@ -5,6 +5,9 @@
 
 # Grafana 추가 데이터소스 (Loki, Tempo 연동)
 grafana:
+  persistence:
+    enabled: true
+    size: 2Gi
   additionalDataSources:
     - name: Loki
       type: loki
