@@ -57,13 +57,12 @@ kubectl get pods -n argocd
 
 ## 2. ArgoCD UI 접근
 
-### NodePort로 접근 (custom-values.yaml 기준)
+### Cloudflare Tunnel로 접근 (기본 방식)
 
-```
-http://<서버IP>:30088
-```
+cloudflared가 클러스터 내 Pod로 실행 중이며, argocd-server(ClusterIP)로 직접 라우팅.
+별도 포트 노출 없이 Cloudflare 도메인으로 접근 가능.
 
-### 포트포워딩으로 접근 (NodePort 미설정 시 대안)
+### 포트포워딩으로 접근 (로컬 임시 접근)
 
 ```bash
 kubectl port-forward svc/argocd-server -n argocd 8080:80
