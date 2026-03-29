@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: payment-service
-          image: jaehoon9875/payment-service:latest
+          image: ghcr.io/jaehoon9875/payment-service:latest
           imagePullPolicy: Always
           ports:
             - name: http

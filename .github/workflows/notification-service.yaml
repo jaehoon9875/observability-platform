@@ -1,0 +1,68 @@
+name: CI - notification-service
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'sample-apps/notification-service/**'
+
+permissions:
+  contents: write
+  packages: write
+
+env:
+  IMAGE: ghcr.io/jaehoon9875/notification-service
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 코드 체크아웃
+        uses: actions/checkout@v4
+
+      - name: JDK 17 설정
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: 단위 테스트
+        working-directory: sample-apps/notification-service
+        run: ./mvnw test
+
+      - name: GHCR 로그인
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Docker Buildx 설정 (멀티플랫폼 빌드용)
+        uses: docker/setup-buildx-action@v3
+
+      - name: 이미지 빌드 및 GHCR push
+        uses: docker/build-push-action@v6
+        with:
+          context: sample-apps/notification-service
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            ${{ env.IMAGE }}:sha-${{ github.sha }}
+            ${{ env.IMAGE }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: deployment.yaml 이미지 태그 업데이트
+        run: |
+          sed -i "s|image: ${{ env.IMAGE }}:.*|image: ${{ env.IMAGE }}:sha-${{ github.sha }}|g" \
+            infra/manifests/sample-apps/notification-service/deployment.yaml
+
+      - name: 변경 내용 커밋 및 push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add infra/manifests/sample-apps/notification-service/deployment.yaml
+          git commit -m "ci: notification-service 이미지 태그 업데이트 (sha-${{ github.sha }})"
+          git push
