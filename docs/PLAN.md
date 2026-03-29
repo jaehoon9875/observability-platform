@@ -208,17 +208,27 @@ GitHub Actions (GitHub 서버에서 실행)
 
 ### 할 일
 
-1. GHCR 연동 설정 (GitHub Actions에서 GHCR 인증)
-2. 각 sample-app별 Workflow 작성 (`.github/workflows/`)
+1. ✅ GHCR 연동 설정 (GitHub Actions에서 GHCR 인증)
+2. ✅ 각 sample-app별 Workflow 작성 (`.github/workflows/`)
    - 변경된 서비스만 빌드되도록 경로 필터 설정
    - 이미지 태그: `git commit SHA` 사용
-3. CI가 infra/ 매니페스트의 이미지 태그를 자동으로 업데이트하는 커밋 추가
-4. ArgoCD 자동 배포 end-to-end 확인
+3. ✅ CI가 infra/ 매니페스트의 이미지 태그를 자동으로 업데이트하는 커밋 추가
+4. ✅ ArgoCD 자동 배포 end-to-end 확인
 
 ### 완료 기준
 
-- `sample-apps/order-service/` 코드 변경 후 push 시 GitHub Actions가 자동 실행된다.
-- GHCR에 새 이미지가 push되고, ArgoCD가 자동으로 클러스터에 배포한다.
+- `sample-apps/order-service/` 코드 변경 후 push 시 GitHub Actions가 자동 실행된다. ✅
+- GHCR에 새 이미지가 push되고, ArgoCD가 자동으로 클러스터에 배포한다. ✅
+
+### 구현 메모
+
+- GHCR 인증: 별도 Secret 불필요. Workflow 내 `permissions: packages: write`로 `GITHUB_TOKEN` 사용
+- 이미지 레지스트리: Docker Hub(`jaehoon9875/`) → GHCR(`ghcr.io/jaehoon9875/`) 전환
+- 경로 필터로 변경된 서비스만 빌드 (`sample-apps/{service}/**`)
+- bot 커밋은 `infra/manifests/` 경로라 paths 필터 불일치 → Workflow 재트리거 없음 (무한 루프 방지)
+- ArgoCD `directory.recurse: true` 설정 필요 — 미설정 시 하위 디렉토리 매니페스트 미탐색
+- 동시 빌드 시 bot push 충돌 방지: `git pull --rebase` 추가
+- 싱글노드 CPU 부족으로 롤링 업데이트 실패 → 3개 서비스 모두 `strategy: Recreate`로 변경
 
 ---
 
