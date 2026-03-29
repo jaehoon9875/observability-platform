@@ -8,6 +8,10 @@ metadata:
     app.kubernetes.io/part-of: observability-platform
 spec:
   replicas: 1
+  # 싱글노드 클러스터에서 CPU 자원이 부족해 롤링 업데이트 시 신규 파드가 Pending 상태로
+  # 멈추는 문제가 반복됨. Recreate 전략으로 구 파드를 먼저 종료 후 신 파드를 기동한다.
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: order-service
