@@ -21,7 +21,7 @@ spec:
       containers:
         - name: order-service
           # 싱글노드 클러스터에서 로컬 빌드 이미지 사용 시 imagePullPolicy: IfNotPresent 유지
-          image: ghcr.io/jaehoon9875/order-service:latest
+          image: ghcr.io/jaehoon9875/order-service:sha-44d2a5b7d1f7d3f3357f89cf54ffccbad455f134
           imagePullPolicy: Always
           ports:
             - name: http
