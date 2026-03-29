@@ -1,4 +1,4 @@
-// CI 파이프라인 동작 검증용 커밋 (payment-service)
+// CI 파이프라인 동작 검증용 커밋 (payment-service) - retry
 package com.example.payment.controller;
 
 import com.example.payment.dto.PaymentResponse;
