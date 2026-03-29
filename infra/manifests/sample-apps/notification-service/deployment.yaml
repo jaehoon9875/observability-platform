@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: notification-service
-          image: ghcr.io/jaehoon9875/notification-service:latest
+          image: ghcr.io/jaehoon9875/notification-service:sha-a78a4c43361dc2be8c2148cb967499e2377eeccb
           imagePullPolicy: Always
           ports:
             - name: http
