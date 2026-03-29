@@ -1,3 +1,4 @@
+// CI 파이프라인 동작 검증용 커밋 (payment-service)
 package com.example.payment.controller;
 
 import com.example.payment.dto.PaymentResponse;

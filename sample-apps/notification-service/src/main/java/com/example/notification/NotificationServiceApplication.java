@@ -1,3 +1,4 @@
+// CI 파이프라인 동작 검증용 커밋 (notification-service)
 package com.example.notification;
 
 import org.springframework.boot.SpringApplication;
