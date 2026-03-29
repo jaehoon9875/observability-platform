@@ -2,12 +2,9 @@
 # chart version: 0.7.6 / app version: v0.7.2
 # 역할: Kafka 클러스터 웹 UI
 
-# 클러스터 외부에서 접근하기 위해 NodePort로 변경 (기본값: ClusterIP)
-service:
-  type: NodePort
-  nodePort: 30080
-
-# 연결할 Kafka 클러스터 설정
-kafkaClusters:
-  - name: kafka
-    bootstrapServers: kafka-kafka-bootstrap:9092
+# 연결할 Kafka 클러스터 설정 (yamlApplicationConfig로 전달해야 chart가 인식)
+yamlApplicationConfig:
+  kafka:
+    clusters:
+      - name: kafka
+        bootstrapServers: kafka-kafka-bootstrap:9092
