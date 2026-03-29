@@ -43,7 +43,8 @@ scripts/           → 운영 자동화 스크립트
 - 2단계 완료 ✅ (payment/notification-service 개발, 분산 트레이싱 연동)
 - 3단계 완료 ✅ (SLO 대시보드, JVM 대시보드, Alert Rule 작성 및 클러스터 적용)
 - 4단계 일부 완료 🔄 (k6 시나리오 작성, 부하 테스트 실행 및 메트릭 변화 확인 완료 / 병목 분석 문서화, k6→Prometheus 연동은 홀딩)
-- 현재: 5단계 진행 중 (ArgoCD GitOps 전환)
+- 5단계 대부분 완료 🔄 (ArgoCD GitOps 전환 — alloy/kafka/loki/mysql/redis/sample-apps 등 Synced. mysql-operator·prometheus-stack OutOfSync 미해결)
+- 현재: 5단계 마무리 중 (OutOfSync 이슈 해결 필요 — docs/PLAN.md TODO 참조)
 - 상세 계획: `docs/PLAN.md` 참조
 
 ## Project Progress
