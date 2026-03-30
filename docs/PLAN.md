@@ -318,13 +318,29 @@ Prometheus가 기본으로 수집하지 않는 메트릭을 수집하는 독립 
 
 #### 2단계 — Log-Trace Correlation 미완료
 
-- [ ] OTel Agent가 삽입하는 `trace_id`를 Alloy → Loki로 전달하도록 파이프라인 설정
-- [ ] Grafana Loki 데이터소스 Derived Fields 설정 (로그 → Tempo 연결)
+- [x] OTel Agent가 삽입하는 `trace_id`를 Alloy → Loki로 전달하도록 파이프라인 설정
+  - Alloy stage.json 필드명 오류 수정 완료: `traceId` → `trace_id`, `spanId` → `span_id` (커밋 `d9ffb38`)
+- [x] Grafana Loki 데이터소스 Derived Fields matcherRegex 수정 완료: `"traceId"` → `"trace_id"` (커밋 `d9ffb38`)
+- [ ] 실제 트래픽 발생 후 Grafana에서 trace_id 라벨 및 Tempo 링크 동작 확인
 
 #### 4단계 — 문서화 및 연동 홀딩
 
 - [ ] 부하 테스트 병목 분석 결과 문서화
 - [ ] k6 → Prometheus 연동 (필요 시)
+
+#### 9단계 — 싱글노드 CPU 리소스 부족
+
+- **증상**: CPU requests 합계가 3960m/4000m(99%)로 k6 Job 등 추가 Pod 스케줄링 불가
+- **주요 원인**: loki-chunks-cache, loki-results-cache(memcached) 각 500m 요청 — 싱글노드 환경에 과도
+- [ ] `infra/helm/loki/custom-values.yaml`에서 memcached CPU request 축소 (500m → 100m)
+- [ ] 전체 Pod CPU/Memory requests 재검토 및 싱글노드 환경에 맞게 조정
+- [ ] 조정 후 k6 부하 테스트 재실행 및 trace_id 동작 검증
+
+#### 5단계 — prometheus-stack Grafana SSA 충돌 (잔존)
+
+- [ ] Grafana Secret/Deployment OutOfSync (helm vs argocd-controller 필드 소유권 충돌)
+  - `helm` manager가 소유한 필드를 argocd-controller가 덮어쓰지 못하는 상태
+  - `ignoreDifferences` 규칙 추가 또는 SSA force-conflicts 적용 검토
 
 ### 그 외 개선 검토 항목
 
