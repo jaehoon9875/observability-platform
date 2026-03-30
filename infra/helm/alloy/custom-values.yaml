@@ -88,10 +88,26 @@ alloy:
       }
       loki.process "pod_logs" {
         stage.static_labels {
-            values = {
-              cluster = "kubernetes",
-            }
+          values = {
+            cluster = "kubernetes",
+          }
         }
+
+        // JSON 로그에서 traceId/spanId 추출 (OTel Java Agent → MDC → logstash-logback-encoder)
+        // JSON 파싱 실패 시(텍스트 로그) 해당 스테이지는 무시되므로 비-JSON Pod에도 안전
+        stage.json {
+          expressions = {
+            trace_id = "traceId",
+            span_id  = "spanId",
+          }
+        }
+        stage.labels {
+          values = {
+            trace_id = "",
+            span_id  = "",
+          }
+        }
+
         forward_to = [loki.write.default_loki_endpoint.receiver]
       }
 
