@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka-lag-exporter
+  namespace: obs-apps
+  labels:
+    app.kubernetes.io/name: kafka-lag-exporter
+    app.kubernetes.io/part-of: observability-platform
+spec:
+  replicas: 1
+  # 싱글노드 클러스터에서 CPU 자원 부족 시 Recreate로 안전하게 교체
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: kafka-lag-exporter
+  template:
+    metadata:
+      labels:
+        app: kafka-lag-exporter
+        app.kubernetes.io/name: kafka-lag-exporter
+        app.kubernetes.io/part-of: observability-platform
+    spec:
+      containers:
+        - name: kafka-lag-exporter
+          image: ghcr.io/jaehoon9875/kafka-lag-exporter:latest
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: kafka-lag-exporter-config
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
+          startupProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 20
+            periodSeconds: 5
+            failureThreshold: 12
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            periodSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            periodSeconds: 10
+            failureThreshold: 3

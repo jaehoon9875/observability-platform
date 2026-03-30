@@ -1,0 +1,70 @@
+name: CI - kafka-lag-exporter
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'custom-exporter/**'
+
+permissions:
+  contents: write  # deployment.yaml 수정 커밋용
+  packages: write  # GHCR 이미지 push용
+
+env:
+  IMAGE: ghcr.io/jaehoon9875/kafka-lag-exporter
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 코드 체크아웃
+        uses: actions/checkout@v4
+
+      - name: JDK 17 설정
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: 단위 테스트
+        working-directory: custom-exporter
+        run: ./mvnw test
+
+      - name: GHCR 로그인
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Docker Buildx 설정 (멀티플랫폼 빌드용)
+        uses: docker/setup-buildx-action@v3
+
+      # linux/amd64: 클러스터(배포 대상), linux/arm64: 개발 MacBook M1
+      - name: 이미지 빌드 및 GHCR push
+        uses: docker/build-push-action@v6
+        with:
+          context: custom-exporter
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            ${{ env.IMAGE }}:sha-${{ github.sha }}
+            ${{ env.IMAGE }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: deployment.yaml 이미지 태그 업데이트
+        run: |
+          sed -i "s|image: ${{ env.IMAGE }}:.*|image: ${{ env.IMAGE }}:sha-${{ github.sha }}|g" \
+            infra/manifests/custom-exporter/deployment.yaml
+
+      - name: 변경 내용 커밋 및 push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add infra/manifests/custom-exporter/deployment.yaml
+          git commit -m "ci: kafka-lag-exporter 이미지 태그 업데이트 (sha-${{ github.sha }})"
+          git pull --rebase origin main
+          git push

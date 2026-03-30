@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kafka-lag-exporter-config
+  namespace: obs-apps
+  labels:
+    app.kubernetes.io/name: kafka-lag-exporter
+    app.kubernetes.io/part-of: observability-platform
+data:
+  KAFKA_BOOTSTRAP_SERVERS: "kafka-kafka-bootstrap:9092"
+  # 모니터링할 Consumer Group 목록 (쉼표로 구분)
+  KAFKA_CONSUMER_GROUPS: "notification-service"
+  # Lag 수집 주기 (밀리초)
+  KAFKA_LAG_COLLECT_INTERVAL_MS: "15000"

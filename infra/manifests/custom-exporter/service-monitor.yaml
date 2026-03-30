@@ -1,0 +1,21 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: kafka-lag-exporter-monitor
+  # Prometheus Operator가 있는 네임스페이스에 배포해야 감지됨
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: kafka-lag-exporter
+    app.kubernetes.io/part-of: observability-platform
+    release: my-kube-prometheus-stack
+spec:
+  namespaceSelector:
+    matchNames:
+      - obs-apps
+  selector:
+    matchLabels:
+      app: kafka-lag-exporter
+  endpoints:
+    - port: http
+      path: /actuator/prometheus
+      interval: 15s

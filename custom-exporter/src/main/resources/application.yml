@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: kafka-lag-exporter
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, prometheus
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+# 모니터링할 Consumer Group 목록 (쉼표로 구분)
+kafka:
+  consumer:
+    groups: ${KAFKA_CONSUMER_GROUPS:notification-service}
+  lag:
+    collect:
+      interval-ms: ${KAFKA_LAG_COLLECT_INTERVAL_MS:15000}
