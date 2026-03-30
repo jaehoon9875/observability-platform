@@ -23,7 +23,7 @@ spec:
     spec:
       containers:
         - name: kafka-lag-exporter
-          image: ghcr.io/jaehoon9875/kafka-lag-exporter:latest
+          image: ghcr.io/jaehoon9875/kafka-lag-exporter:sha-27c204d5d958bfbb4647e23f5e1be528c5f1a429
           imagePullPolicy: Always
           ports:
             - name: http
