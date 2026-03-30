@@ -240,25 +240,55 @@ Prometheus가 기본으로 수집하지 않는 메트릭을 수집하는 독립 
 
 ### 할 일
 
-1. Kafka Consumer Lag Exporter 개발 (Java 또는 Go)
+1. ✅ Kafka Consumer Lag Exporter 개발 (Java)
   - Kafka Admin Client로 Consumer Group의 Lag을 조회
-  - `/metrics` 엔드포인트로 노출
-2. Dockerfile + K8s 배포
-3. Prometheus에서 스크랩 확인
-4. Grafana 대시보드에 Kafka Lag 패널 추가
+  - `/actuator/prometheus` 엔드포인트로 노출
+2. ✅ Dockerfile + K8s 배포
+3. ✅ Prometheus에서 스크랩 확인
+4. ✅ Grafana 대시보드에 Kafka Lag 패널 추가
 
 ### 완료 기준
 
-- Grafana에서 Kafka Consumer Lag을 실시간으로 확인할 수 있다.
+- Grafana에서 Kafka Consumer Lag을 실시간으로 확인할 수 있다. ✅
+
+### 구현 메모
+
+- `custom-exporter/`: Spring Boot + Kafka AdminClient + Micrometer 기반 독립 Pod
+- 수집 메트릭: `kafka_consumer_group_lag{group, topic, partition}` — 15초 주기 갱신
+- ArgoCD Application: `infra/argocd/obs-apps/kafka-lag-exporter.yaml` (최초 1회 수동 `kubectl apply` 필요)
+- CI: `.github/workflows/kafka-lag-exporter.yaml` — `custom-exporter/**` 변경 시 자동 빌드/배포
+- **OOM 트러블슈팅**: 기동 시 Exit Code 137 (SIGKILL) 발생
+  - 원인: JVM이 컨테이너 메모리 제한 미인식 + 메모리 한도 부족
+  - 조치: Dockerfile에 `-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:TieredStopAtLevel=1` 추가
+  - 조치: 메모리 `128Mi/256Mi` → `256Mi/512Mi`, startupProbe initialDelaySeconds `20s` → `60s`
+- **메트릭 미노출 원인**: Consumer가 오프셋을 한 번도 커밋하지 않으면 Gauge가 등록되지 않음
+  - 조치: order-service에 주문 생성 → notification-service가 메시지 소비 후 오프셋 커밋 → 메트릭 노출
 
 ---
 
 ## 8단계: scripts/ 자동화 도구
 
+### 목표
+
+장애 발생 시 반복되는 수작업을 자동화하여 초기 대응 속도를 높인다.
+
 ### 할 일
 
 1. incident-collector.sh — 장애 시 Pod 로그, describe, 이벤트를 자동 수집
-2. heap-analyzer.py — JVM 힙 덤프를 분석하여 메모리 누수 의심 객체 요약
+   - 네임스페이스 지정 또는 전체 대상
+   - `kubectl logs`, `kubectl describe pod`, `kubectl get events` 수집
+   - `kubectl top pod`으로 리소스 사용량 수집
+   - 타임스탬프 기반 디렉토리에 결과 저장 (예: `incident-20260330-1200/`)
+
+### 완료 기준
+
+- 스크립트 실행 한 번으로 장애 진단에 필요한 정보가 디렉토리에 저장된다.
+
+### 추후 확장 (필요 시)
+
+- AlertManager webhook 연동으로 장애 감지 시 자동 실행
+- Slack 알림에 수집 결과 요약 첨부
+- 기타 반복되는 운영 작업이 생기면 그때 추가
 
 ---
 
