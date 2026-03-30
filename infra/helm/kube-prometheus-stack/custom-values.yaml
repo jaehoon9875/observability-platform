@@ -5,6 +5,8 @@
 
 # Grafana 추가 데이터소스 (Loki, Tempo 연동)
 grafana:
+  initChownData:
+    enabled: false
   persistence:
     enabled: true
     size: 2Gi
@@ -14,6 +16,10 @@ grafana:
       uid: loki
       url: http://loki.monitoring:3100
       access: proxy
+      jsonData:
+        httpHeaderName1: "X-Scope-OrgID"
+      secureJsonData:
+        httpHeaderValue1: "fake"
     - name: Tempo
       type: tempo
       uid: tempo
