@@ -93,12 +93,12 @@ alloy:
           }
         }
 
-        // JSON 로그에서 traceId/spanId 추출 (OTel Java Agent → MDC → logstash-logback-encoder)
+        // JSON 로그에서 trace_id/span_id 추출 (OTel Java Agent → MDC → logstash-logback-encoder)
         // JSON 파싱 실패 시(텍스트 로그) 해당 스테이지는 무시되므로 비-JSON Pod에도 안전
         stage.json {
           expressions = {
-            trace_id = "traceId",
-            span_id  = "spanId",
+            trace_id = "trace_id",
+            span_id  = "span_id",
           }
         }
         stage.labels {

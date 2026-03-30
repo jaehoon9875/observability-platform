@@ -18,10 +18,10 @@ grafana:
       access: proxy
       jsonData:
         httpHeaderName1: "X-Scope-OrgID"
-        # 로그 라인에서 traceId 추출 → Tempo 링크 생성 (Log-Trace Correlation)
+        # 로그 라인에서 trace_id 추출 → Tempo 링크 생성 (Log-Trace Correlation)
         derivedFields:
           - name: TraceID
-            matcherRegex: '"traceId":"(\w+)"'
+            matcherRegex: '"trace_id":"(\w+)"'
             url: "${__value.raw}"
             datasourceUid: tempo
             urlDisplayLabel: "Tempo에서 트레이스 보기"
