@@ -28,7 +28,7 @@
 
 set -euo pipefail
 
-NAMESPACE="observability-platform"
+NAMESPACE="obs-apps"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
@@ -111,7 +111,7 @@ fi
 # ── ConfigMap 적용 ─────────────────────────────────────────
 
 echo ">>> ConfigMap 적용 중..."
-kubectl apply -f "${REPO_ROOT}/infra/k6/configmap.yaml" -n "${NAMESPACE}"
+kubectl apply -f "${REPO_ROOT}/infra/manifests/k6/configmap.yaml" -n "${NAMESPACE}"
 
 # ── Job 동적 생성 ──────────────────────────────────────────
 
