@@ -320,8 +320,20 @@ Prometheus가 기본으로 수집하지 않는 메트릭을 수집하는 독립 
 
 - [x] OTel Agent가 삽입하는 `trace_id`를 Alloy → Loki로 전달하도록 파이프라인 설정
   - Alloy stage.json 필드명 오류 수정 완료: `traceId` → `trace_id`, `spanId` → `span_id` (커밋 `d9ffb38`)
-- [x] Grafana Loki 데이터소스 Derived Fields matcherRegex 수정 완료: `"traceId"` → `"trace_id"` (커밋 `d9ffb38`)
-- [ ] 실제 트래픽 발생 후 Grafana에서 trace_id 라벨 및 Tempo 링크 동작 확인
+- [x] Grafana Loki 데이터소스 Derived Fields 설정 완료 (커밋 `a0f0af1`)
+  - matcherType: label / matcherRegex: trace_id 방식으로 변경
+- [ ] Grafana Loki datasource secureJsonData 복구 후 전체 동작 최종 확인
+  - **현재 증상**: provisioning reload 시 Grafana가 기존 datasource UPDATE 처리하면서 secureJsonData(X-Scope-OrgID: fake 헤더) 미재적용 → 로그 조회 불가
+  - **해결 방법**: Grafana DB에서 Loki datasource 항목 삭제 후 provisioning reload (신규 생성 시 secureJsonData 적용됨)
+    ```bash
+    # Grafana pod에서 실행 (sqlite3 또는 python3 필요)
+    sqlite3 /var/lib/grafana/grafana.db "DELETE FROM data_source WHERE uid='loki';"
+    # 또는 kubectl cp로 호스트에서 수정 후 복사
+    kubectl cp monitoring/<grafana-pod>:/var/lib/grafana/grafana.db ./grafana.db
+    sqlite3 ./grafana.db "DELETE FROM data_source WHERE uid='loki';"
+    kubectl cp ./grafana.db monitoring/<grafana-pod>:/var/lib/grafana/grafana.db
+    ```
+  - 이후 Grafana pod 재시작 또는 `POST /api/admin/provisioning/datasources/reload` 호출
 
 #### 4단계 — 문서화 및 연동 홀딩
 
