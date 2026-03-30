@@ -87,6 +87,13 @@
             <optional>true</optional>
         </dependency>
 
+        <!-- JSON 로깅 (Log-Trace Correlation용) -->
+        <dependency>
+            <groupId>net.logstash.logback</groupId>
+            <artifactId>logstash-logback-encoder</artifactId>
+            <version>8.0</version>
+        </dependency>
+
         <!-- Test -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
