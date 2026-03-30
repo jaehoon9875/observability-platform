@@ -46,7 +46,8 @@ scripts/           → 운영 자동화 스크립트
 - 5단계 대부분 완료 🔄 (ArgoCD GitOps 전환 — alloy/kafka/loki/mysql/redis/sample-apps 등 Synced. mysql-operator·prometheus-stack OutOfSync 미해결)
 - 6단계 완료 ✅ (GitHub Actions CI — GHCR 빌드/push, deployment.yaml 자동 업데이트, ArgoCD 자동 배포 end-to-end 확인)
 - 7단계 완료 ✅ (Kafka Consumer Lag Exporter 개발 및 배포, Grafana 대시보드 확인)
-- 현재: 8단계 (scripts/ 자동화 도구) 예정
+- 8단계 완료 ✅ (incident-collector.sh 작성 — Pod 로그/describe/events/top 자동 수집)
+- 현재: 9단계 (전체 리뷰 및 미해결 이슈 개선) 진행 중
 - 상세 계획: `docs/PLAN.md` 참조
 
 ## Project Progress

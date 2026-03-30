@@ -274,7 +274,7 @@ Prometheus가 기본으로 수집하지 않는 메트릭을 수집하는 독립 
 
 ### 할 일
 
-1. incident-collector.sh — 장애 시 Pod 로그, describe, 이벤트를 자동 수집
+1. ✅ incident-collector.sh — 장애 시 Pod 로그, describe, 이벤트를 자동 수집
    - 네임스페이스 지정 또는 전체 대상
    - `kubectl logs`, `kubectl describe pod`, `kubectl get events` 수집
    - `kubectl top pod`으로 리소스 사용량 수집
@@ -282,13 +282,43 @@ Prometheus가 기본으로 수집하지 않는 메트릭을 수집하는 독립 
 
 ### 완료 기준
 
-- 스크립트 실행 한 번으로 장애 진단에 필요한 정보가 디렉토리에 저장된다.
+- 스크립트 실행 한 번으로 장애 진단에 필요한 정보가 디렉토리에 저장된다. ✅
 
 ### 추후 확장 (필요 시)
 
 - AlertManager webhook 연동으로 장애 감지 시 자동 실행
 - Slack 알림에 수집 결과 요약 첨부
 - 기타 반복되는 운영 작업이 생기면 그때 추가
+
+---
+
+## 9단계: 전체 리뷰 및 개선
+
+### 목표
+
+1단계~8단계에서 미해결로 남긴 이슈들을 점검하고, 프로젝트 완성도를 높인다.
+
+### 미해결 이슈 목록
+
+#### 5단계 — ArgoCD OutOfSync / Degraded
+
+- [ ] mysql-operator: `innodbclusters.mysql.oracle.com` CRD 지속 OutOfSync → `ignoreDifferences` 규칙 추가 검토
+- [ ] prometheus-stack: 대부분 리소스 OutOfSync → ServerSideApply + take-over 완료 여부 확인
+- [ ] prometheus-stack: Degraded 상태로 변경됨 → 원인 파악 및 복구
+
+#### 2단계 — Log-Trace Correlation 미완료
+
+- [ ] OTel Agent가 삽입하는 `trace_id`를 Alloy → Loki로 전달하도록 파이프라인 설정
+- [ ] Grafana Loki 데이터소스 Derived Fields 설정 (로그 → Tempo 연결)
+
+#### 4단계 — 문서화 및 연동 홀딩
+
+- [ ] 부하 테스트 병목 분석 결과 문서화
+- [ ] k6 → Prometheus 연동 (필요 시)
+
+### 그 외 개선 검토 항목
+
+- 전체 코드/설정 리뷰 후 개선 포인트 발견 시 추가
 
 ---
 
