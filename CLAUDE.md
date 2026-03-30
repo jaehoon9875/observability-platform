@@ -62,3 +62,6 @@ scripts/           → 운영 자동화 스크립트
 - Helm values.yaml 수정 시 기존 주석을 삭제하지 않는다.
 - sample-apps의 각 서비스는 독립적으로 빌드/배포 가능해야 한다.
 - 환경변수는 하드코딩하지 않고 application.yml 또는 K8s ConfigMap/Secret으로 관리한다.
+- ArgoCD로 관리되는 리소스는 `helm upgrade` CLI나 `kubectl apply`로 직접 수정하지 않는다.
+  직접 수정하면 SSA(Server-Side Apply) 필드 소유권이 분리되어, ArgoCD가 해당 필드를 관리하지 못하는 drift가 발생한다.
+  설정 변경은 반드시 infra/ 파일을 수정하고 Git push → ArgoCD sync 경로로만 반영한다.

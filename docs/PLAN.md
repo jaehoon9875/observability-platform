@@ -304,7 +304,17 @@ Prometheus가 기본으로 수집하지 않는 메트릭을 수집하는 독립 
 
 - [ ] mysql-operator: `innodbclusters.mysql.oracle.com` CRD 지속 OutOfSync → `ignoreDifferences` 규칙 추가 검토
 - [ ] prometheus-stack: 대부분 리소스 OutOfSync → ServerSideApply + take-over 완료 여부 확인
-- [ ] prometheus-stack: Degraded 상태로 변경됨 → 원인 파악 및 복구
+- [x] prometheus-stack: Degraded 상태 → 원인 파악 및 복구 완료 (2026-03-30)
+
+  **원인 1 — ArgoCD PreSync Hook Job hang**
+  `admission-create` Job이 클러스터에서 이미 완료/삭제됐으나 ArgoCD가 `hookPhase: Running`으로 오인하여 sync operation이 28시간 이상 정체.
+  `kubectl patch application prometheus-stack -n argocd --type merge -p '{"operation": null}'` 로 operation 강제 종료 후 재sync로 해소.
+
+  **원인 2 — Grafana init-chown-data Permission denied (SSA 필드 소유권 충돌)**
+  초기 설치 시 `helm upgrade` CLI로 직접 배포했기 때문에 `helm` 필드 매니저가 Grafana Deployment의 `initContainers` 필드를 소유.
+  이후 `initChownData.enabled: false`(커밋 `4fde0c1`)를 custom-values.yaml에 적용했으나, ArgoCD SSA는 자신(`argocd-controller`)이 소유하지 않은 필드를 제거하지 않아 init 컨테이너가 계속 실행됨.
+  `kubectl patch deployment ... --type=json -p='[{"op":"remove","path":"/spec/template/spec/initContainers"}]'` 로 강제 제거 후 정상화.
+  → **근본 원인**: ArgoCD로 관리되는 리소스를 `helm upgrade` CLI로 직접 수정하면 SSA 필드 소유권이 분리되어 ArgoCD가 특정 필드를 관리하지 못하는 문제 발생. 해당 리소스는 ArgoCD를 통해서만 변경해야 함.
 
 #### 2단계 — Log-Trace Correlation 미완료
 
