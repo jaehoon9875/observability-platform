@@ -344,9 +344,11 @@ Prometheus가 기본으로 수집하지 않는 메트릭을 수집하는 독립 
 
 - **증상**: CPU requests 합계가 3960m/4000m(99%)로 k6 Job 등 추가 Pod 스케줄링 불가
 - **주요 원인**: loki-chunks-cache, loki-results-cache(memcached) 각 500m 요청 — 싱글노드 환경에 과도
-- [ ] `infra/helm/loki/custom-values.yaml`에서 memcached CPU request 축소 (500m → 100m)
-- [ ] 전체 Pod CPU/Memory requests 재검토 및 싱글노드 환경에 맞게 조정
-- [ ] 조정 후 k6 부하 테스트 재실행 및 trace_id 동작 검증
+- **분석 계획**: `docs/resource-sizing-analysis.md` 참조 (실제 사용량 분석 → 근거 기반 조정 → 검증 순서로 진행)
+- [ ] 실제 CPU/Memory 사용량 수집 및 requests/limits 대비 분석 (`docs/resource-sizing-analysis.md` 1단계)
+- [ ] 서비스별 심층 분석 — Java JVM, Loki memcached, Kafka (`docs/resource-sizing-analysis.md` 2단계)
+- [ ] 분석 결과 기반으로 infra/ 값 조정 (`docs/resource-sizing-analysis.md` 3단계)
+- [ ] 조정 후 k6 부하 테스트 재실행 및 trace_id 동작 검증 (`docs/resource-sizing-analysis.md` 4단계)
 
 #### 5단계 — prometheus-stack Grafana SSA 충돌 (잔존)
 
