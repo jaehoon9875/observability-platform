@@ -21,8 +21,8 @@ grafana:
         # Loki 라벨 trace_id → Tempo 링크 생성 (Log-Trace Correlation)
         derivedFields:
           - name: TraceID
-            matcherType: label
-            matcherRegex: trace_id
+            matcherType: regex
+            matcherRegex: '"trace_id":"([a-f0-9]{32})"'
             datasourceUid: tempo
             urlDisplayLabel: "Tempo에서 트레이스 보기"
       secureJsonData:
