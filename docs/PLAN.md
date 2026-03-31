@@ -320,20 +320,20 @@ Prometheus가 기본으로 수집하지 않는 메트릭을 수집하는 독립 
 
 - [x] OTel Agent가 삽입하는 `trace_id`를 Alloy → Loki로 전달하도록 파이프라인 설정
   - Alloy stage.json 필드명 오류 수정 완료: `traceId` → `trace_id`, `spanId` → `span_id` (커밋 `d9ffb38`)
-- [x] Grafana Loki 데이터소스 Derived Fields 설정 완료 (커밋 `a0f0af1`)
-  - matcherType: label / matcherRegex: trace_id 방식으로 변경
-- [ ] Grafana Loki datasource secureJsonData 복구 후 전체 동작 최종 확인
-  - **현재 증상**: provisioning reload 시 Grafana가 기존 datasource UPDATE 처리하면서 secureJsonData(X-Scope-OrgID: fake 헤더) 미재적용 → 로그 조회 불가
-  - **해결 방법**: Grafana DB에서 Loki datasource 항목 삭제 후 provisioning reload (신규 생성 시 secureJsonData 적용됨)
-    ```bash
-    # Grafana pod에서 실행 (sqlite3 또는 python3 필요)
-    sqlite3 /var/lib/grafana/grafana.db "DELETE FROM data_source WHERE uid='loki';"
-    # 또는 kubectl cp로 호스트에서 수정 후 복사
-    kubectl cp monitoring/<grafana-pod>:/var/lib/grafana/grafana.db ./grafana.db
-    sqlite3 ./grafana.db "DELETE FROM data_source WHERE uid='loki';"
-    kubectl cp ./grafana.db monitoring/<grafana-pod>:/var/lib/grafana/grafana.db
-    ```
-  - 이후 Grafana pod 재시작 또는 `POST /api/admin/provisioning/datasources/reload` 호출
+- [x] Grafana Loki 데이터소스 Derived Fields 설정 완료 (커밋 `9818c51`)
+  - matcherType: label → regex로 변경. `label` 방식은 Loki stream label(indexed label)을 지원하지 않아 링크 미생성
+  - matcherRegex: `"trace_id":"([a-f0-9]{32})"` — 로그 라인 JSON 본문에서 직접 캡처
+- [x] Grafana Loki datasource secureJsonData 및 derivedFields 적용 완료
+  - Grafana provisioning UPDATE 방식으로 인해 jsonData/secureJsonData 미재적용 문제 해결
+  - Grafana DB에서 Loki datasource 삭제 후 Grafana API(`POST /api/datasources`)로 직접 생성
+  - Grafana 12.4.1부터 기동 시 `provisioning.datasources`가 실행되지 않아 provisioning 파일로 자동 재생성 불가
+    → pod 재시작 시 datasource가 사라지는 문제가 있어 현재는 수동 API 생성 상태
+- [x] 로그에서 "Tempo에서 트레이스 보기" 링크 표시 확인
+- [ ] **링크 클릭 시 Tempo에서 No data** — 여기서 마무리 (미해결)
+  - 증상: Tempo Explore 페이지로 이동하나 TraceQL 쿼리가 비어있고 No data
+  - Tempo에는 trace 데이터가 정상 저장되어 있음 (API 직접 조회로 확인)
+  - 원인: Grafana Tempo 플러그인이 derived field 값을 TraceQL 쿼리로 변환하지 못하는 것으로 추정
+    (datasourceUid 방식의 internal link에서 trace_id 값 전달 경로 미확인)
 
 #### 4단계 — 문서화 및 연동 홀딩
 
@@ -356,7 +356,39 @@ Prometheus가 기본으로 수집하지 않는 메트릭을 수집하는 독립 
 
 ### 그 외 개선 검토 항목
 
-- 전체 코드/설정 리뷰 후 개선 포인트 발견 시 추가
+#### Grafana datasource 관리 구조 개선
+
+Log-Trace Correlation 작업 중 발견된 구조적 문제들.
+
+**문제 1 — provisioning UPDATE로 인한 jsonData/secureJsonData 미적용**
+
+Grafana provisioning은 datasource가 이미 존재하면 UPDATE 방식으로 처리하며, 이 때 `secureJsonData`와 일부 `jsonData` 변경이 반영되지 않는다.
+
+- [ ] provisioning 파일에 `deleteDatasources` 옵션 추가
+  ```yaml
+  apiVersion: 1
+  deleteDatasources:
+    - name: Loki
+      orgId: 1
+  datasources:
+    - name: Loki
+      ...
+  ```
+  이렇게 하면 Grafana가 기존 datasource를 삭제 후 재생성하므로 UPDATE 문제가 해소된다.
+
+**문제 2 — Grafana 12.4.1에서 기동 시 `provisioning.datasources` 미실행**
+
+Grafana 12.x부터 datasource 관리가 Kubernetes-native 스토리지 방식으로 전환되면서, 기존 파일 기반 provisioning(`/etc/grafana/provisioning/datasources/`)이 기동 시 자동 실행되지 않는다. 현재 Loki datasource는 pod 재시작 시 사라지는 상태.
+
+- [ ] Grafana 12.x의 새로운 datasource provisioning 방식 파악 후 적용
+  - `datasources.grafana.app` API group 방식 검토
+  - 또는 초기화 Job/init container에서 `POST /api/datasources` 호출하는 방식 검토
+
+**문제 3 — ArgoCD PreSync Hook Job hang 반복 발생**
+
+`my-kube-prometheus-stack-admission-create` Job이 Complete 상태인데 ArgoCD가 Running으로 오인하여 sync가 무한 대기하는 문제. 발생 시마다 수동으로 `kubectl patch application prometheus-stack -n argocd --type merge -p '{"operation": null}'` 로 해소해야 함.
+
+- [ ] prometheus-stack ArgoCD Application에 hook 정책 조정 또는 `ignoreDifferences` 적용으로 근본 해결 검토
 
 ---
 
