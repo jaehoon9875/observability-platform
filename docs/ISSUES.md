@@ -5,6 +5,20 @@
 
 ---
 
+## 현재 우선순위
+
+| 순위 | 이슈 | 상태 |
+|------|------|------|
+| 1 | Grafana datasource provisioning (12.x 호환) | 예정 |
+| 2 | Log-Trace Correlation — Tempo 링크 No data | 진행 중 |
+| 3 | Error Budget 대시보드 추가 | 예정 |
+| 4 | CPU 리소스 분석 + throttling 대시보드 | 예정 |
+| - | ArgoCD — mysql-operator CRD OutOfSync | 홀딩 |
+| - | ArgoCD — prometheus-stack Grafana SSA 충돌 | 홀딩 |
+| - | ArgoCD — PreSync Hook Job hang 반복 | 홀딩 |
+
+---
+
 ## 미해결 이슈
 
 ### [5단계] ArgoCD — mysql-operator CRD OutOfSync
@@ -60,6 +74,24 @@
 ---
 
 ## 개선 검토 항목
+
+### [3단계] Error Budget 대시보드 추가
+
+현재 SLO는 정의만 되어있고, Error Budget 소진 현황을 시각화하는 대시보드가 없다.
+Error Budget 패널을 추가하면 "SLO를 설정했다"가 아니라 "SLO로 실제 운영 판단을 한다"는 수준으로 완성도가 올라간다.
+
+- [ ] SLO Overview 대시보드(`dashboards/slo-overview.yaml`)에 Error Budget 패널 추가
+  - 30일 Error Budget 소진율
+    ```promql
+    1 - (
+      sum(rate(http_server_requests_seconds_count{status!~"5.."}[30d]))
+      / sum(rate(http_server_requests_seconds_count[30d]))
+    ) / (1 - 0.999)
+    ```
+  - 잔여 Error Budget(%) 및 소진 속도 시각화
+- [ ] 대시보드 JSON 업데이트 후 ArgoCD sync로 반영
+
+---
 
 ### Grafana datasource 관리 구조 개선
 

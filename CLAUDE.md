@@ -49,6 +49,7 @@ scripts/           → 운영 자동화 스크립트
 - 8단계 완료 ✅ (incident-collector.sh 작성 — Pod 로그/describe/events/top 자동 수집)
 - 현재: 9단계 (전체 리뷰 및 미해결 이슈 개선) 진행 중
 - 상세 계획: `docs/PLAN.md` 참조
+- 상세 이슈: `docs/ISSUES.md` 참조
 
 ## Project Progress
 
