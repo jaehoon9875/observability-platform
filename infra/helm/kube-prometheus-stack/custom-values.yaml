@@ -29,26 +29,15 @@ grafana:
     size: 2Gi
   sidecar:
     datasources:
-      # 기본 자동 프로비저닝 Prometheus 데이터소스 비활성화 →
-      # 아래 additionalDataSources에서 exemplar 설정 포함한 버전으로 교체
-      defaultDatasourceEnabled: false
+      # kube-prometheus-stack이 자동 생성하는 Prometheus 데이터소스에
+      # exemplar → Tempo 연결 설정 추가
+      exemplarTraceIdDestinations:
+        - datasourceUid: tempo
+          name: trace_id
   deleteDatasources:
     - name: Tempo
       orgId: 1
   additionalDataSources:
-    # 기본 Prometheus 데이터소스 대체 (exemplar → Tempo 연결 추가)
-    # defaultDatasourceEnabled: false로 자동 생성을 막고 여기서 직접 정의
-    - name: Prometheus
-      type: prometheus
-      uid: prometheus
-      url: http://my-kube-prometheus-stack-prometheus.monitoring:9090
-      isDefault: true
-      jsonData:
-        timeInterval: 30s
-        # Exemplar의 trace_id 라벨 → Tempo 링크 생성 (Metric-Trace Correlation)
-        exemplarTraceIdDestinations:
-          - name: trace_id
-            datasourceUid: tempo
     - name: Loki
       type: loki
       uid: loki
