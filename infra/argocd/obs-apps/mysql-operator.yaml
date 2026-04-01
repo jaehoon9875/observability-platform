@@ -20,6 +20,12 @@ spec:
   destination:
     server: https://kubernetes.default.svc
     namespace: obs-apps
+  ignoreDifferences:
+    - group: apiextensions.k8s.io
+      kind: CustomResourceDefinition
+      name: innodbclusters.mysql.oracle.com
+      jsonPointers:
+        - /spec/versions/0/schema/openAPIV3Schema/properties/spec/properties/endpoints/description
   syncPolicy:
     automated:
       prune: true
@@ -27,4 +33,4 @@ spec:
     syncOptions:
       - CreateNamespace=true
       - ServerSideApply=true
-      - ServerSideDiff=true  # CRD 스키마 정규화(description: '' 등) diff 오탐 방지
+
