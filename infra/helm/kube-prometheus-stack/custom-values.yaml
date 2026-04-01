@@ -5,15 +5,13 @@
 
 # Grafana 추가 데이터소스 (Loki, Tempo 연동)
 grafana:
-  # PV 마운트 시 kubelet이 자동으로 fsGroup 소유권을 변경해주므로
-  # initChownData(initContainer 방식) 없이도 최초 기동부터 권한 문제가 없다.
-  # initChownData: false로 비활성화하면 신규 PV에서 Permission denied 발생 가능.
+  # fsGroup: 472로 kubelet이 볼륨 마운트 시 GID 소유권을 자동 변경하므로
+  # init-chown-data 컨테이너는 불필요. 또한 init 컨테이너는 CAP_CHOWN만 보유하여
+  # DAC_OVERRIDE 없이 mode 700 디렉토리(pdf/csv/png)를 재귀 탐색 불가 → Permission denied.
   securityContext:
-    runAsUser: 472
-    runAsGroup: 472
     fsGroup: 472  # kubelet이 볼륨 마운트 시 GID 472로 소유권을 자동 변경
   initChownData:
-    enabled: true  # 기본값 명시 — fsGroup과 중복이지만 안전망으로 유지
+    enabled: false  # fsGroup으로 처리하므로 init container 불필요
   persistence:
     enabled: true
     size: 2Gi
