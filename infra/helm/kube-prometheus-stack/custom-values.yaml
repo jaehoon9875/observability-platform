@@ -32,8 +32,8 @@ grafana:
       # kube-prometheus-stack이 자동 생성하는 Prometheus 데이터소스에
       # exemplar → Tempo 연결 설정 추가
       exemplarTraceIdDestinations:
-        - datasourceUid: tempo
-          name: trace_id
+        datasourceUid: tempo
+        name: trace_id
   deleteDatasources:
     - name: Tempo
       orgId: 1
