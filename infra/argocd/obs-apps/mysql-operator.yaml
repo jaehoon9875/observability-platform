@@ -3,10 +3,11 @@ kind: Application
 metadata:
   name: mysql-operator
   namespace: argocd
+  annotations:
+    # ArgoCD v3.3+ 핵심: 서버 측에서 Diff를 계산하도록 위임하여 CRD 불일치 완벽 해소
+    argocd.argoproj.io/compare-options: ServerSideDiff=true
 spec:
   project: default
-  # 주의: Operator 삭제 시 관리 중인 InnoDBCluster에 영향 가능
-  # mysql Application보다 먼저 sync되어야 함
   sources:
     - repoURL: https://mysql.github.io/mysql-operator/
       chart: mysql-operator
@@ -20,17 +21,7 @@ spec:
   destination:
     server: https://kubernetes.default.svc
     namespace: obs-apps
-  ignoreDifferences:
-    - group: apiextensions.k8s.io
-      kind: CustomResourceDefinition
-      name: innodbclusters.mysql.oracle.com
-      jsonPointers:
-        - /spec
-    - group: apiextensions.k8s.io
-      kind: CustomResourceDefinition
-      name: mysqlbackups.mysql.oracle.com
-      jsonPointers:
-        - /spec
+  # ServerSideDiff를 사용하므로 ignoreDifferences 블록은 삭제합니다.
   syncPolicy:
     automated:
       prune: true
