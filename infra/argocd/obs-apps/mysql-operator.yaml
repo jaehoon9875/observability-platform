@@ -25,12 +25,13 @@ spec:
       kind: CustomResourceDefinition
       name: innodbclusters.mysql.oracle.com
       jqPathExpressions:
-        - "select(.spec.versions[0].schema.openAPIV3Schema.properties.spec.properties | .. | .description?) or select(.spec.versions[0].schema.openAPIV3Schema.properties.status.properties | .. | .description?)"
+        # 모든 버전의 properties 하위의 모든 description 필드를 무시
+        - '.spec.versions[].schema.openAPIV3Schema.properties | .. | .description?'
     - group: apiextensions.k8s.io
       kind: CustomResourceDefinition
       name: mysqlbackups.mysql.oracle.com
       jqPathExpressions:
-        - "select(.spec.versions[0].schema.openAPIV3Schema.properties.spec.properties | .. | .description?) or select(.spec.versions[0].schema.openAPIV3Schema.properties.status.properties | .. | .description?)"
+        - '.spec.versions[].schema.openAPIV3Schema.properties | .. | .description?'
   syncPolicy:
     automated:
       prune: true
@@ -38,4 +39,3 @@ spec:
     syncOptions:
       - CreateNamespace=true
       - ServerSideApply=true
-
