@@ -3,6 +3,12 @@
 # release name: my-kube-prometheus-stack
 # 현재 클러스터는 모두 기본값으로 설치됨
 
+prometheus:
+  prometheusSpec:
+    # Exemplar 저장소 활성화 — 메트릭에 붙은 trace_id를 Prometheus가 보존
+    enableFeatures:
+      - exemplar-storage
+
 # Grafana 추가 데이터소스 (Loki, Tempo 연동)
 grafana:
   # admin 비밀번호는 SealedSecret(grafana-admin-secret)으로 관리
@@ -21,10 +27,28 @@ grafana:
   persistence:
     enabled: true
     size: 2Gi
+  sidecar:
+    datasources:
+      # 기본 자동 프로비저닝 Prometheus 데이터소스 비활성화 →
+      # 아래 additionalDataSources에서 exemplar 설정 포함한 버전으로 교체
+      defaultDatasourceEnabled: false
   deleteDatasources:
     - name: Tempo
       orgId: 1
   additionalDataSources:
+    # 기본 Prometheus 데이터소스 대체 (exemplar → Tempo 연결 추가)
+    # defaultDatasourceEnabled: false로 자동 생성을 막고 여기서 직접 정의
+    - name: Prometheus
+      type: prometheus
+      uid: prometheus
+      url: http://my-kube-prometheus-stack-prometheus.monitoring:9090
+      isDefault: true
+      jsonData:
+        timeInterval: 30s
+        # Exemplar의 trace_id 라벨 → Tempo 링크 생성 (Metric-Trace Correlation)
+        exemplarTraceIdDestinations:
+          - name: trace_id
+            datasourceUid: tempo
     - name: Loki
       type: loki
       uid: loki
@@ -39,7 +63,7 @@ grafana:
             matcherRegex: '"trace_id":"([a-f0-9]{32})"'
             url: "${__value.raw}"
             datasourceUid: tempo
-            urlDisplayLabel: "Tempo에서 트레이스 보기"
+            urlDisplayLabel: "View trace in Tempo"
       secureJsonData:
         httpHeaderValue1: "fake"
     - name: Tempo

@@ -87,6 +87,12 @@
             <optional>true</optional>
         </dependency>
 
+        <!-- OTel Agent ↔ Micrometer 브릿지 (Exemplar 지원용) -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-tracing-bridge-otel</artifactId>
+        </dependency>
+
         <!-- JSON 로깅 (Log-Trace Correlation용) -->
         <dependency>
             <groupId>net.logstash.logback</groupId>

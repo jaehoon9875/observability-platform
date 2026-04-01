@@ -31,6 +31,10 @@ management:
   metrics:
     tags:
       application: ${spring.application.name}
+    distribution:
+      # Exemplar가 히스토그램 버킷에 붙으려면 percentile histogram 활성화 필요
+      percentiles-histogram:
+        http.server.requests: true
 
 springdoc:
   api-docs:
