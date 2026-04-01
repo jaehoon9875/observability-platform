@@ -14,7 +14,7 @@
 | 3 | Error Budget 대시보드 추가 | 예정 |
 | 4 | CPU 리소스 분석 + throttling 대시보드 | 예정 |
 | - | ArgoCD — mysql-operator CRD OutOfSync | 홀딩 |
-| - | ArgoCD — prometheus-stack Grafana admin 비밀번호 OutOfSync | 해결 중 |
+| - | ArgoCD — prometheus-stack Grafana admin 비밀번호 OutOfSync | 해결 |
 | - | ArgoCD — PreSync Hook Job hang 반복 | 홀딩 |
 
 ---
@@ -30,19 +30,6 @@
   - ArgoCD UI에서 실제 diff 내용 직접 확인
   - `ignoreDifferences` 규칙을 Application에 추가하여 CRD drift 무시 검토
   - ArgoCD v3.3.6의 serverSideDiff + selfHeal 동작 관련 이슈 트래커 확인
-
-### [5단계] ArgoCD — prometheus-stack Grafana admin 비밀번호 OutOfSync
-
-- **증상**: Grafana Secret(`my-kube-prometheus-stack-grafana`) 및 Deployment OutOfSync — Deployment 내 `checksum/secret` 어노테이션이 클러스터와 Git 값이 불일치
-- **실제 원인**: Grafana UI/API를 통해 admin 비밀번호를 직접 변경(`NewPass2026`)했기 때문에, 클러스터의 Secret과 Deployment checksum이 Helm chart가 렌더링하는 값과 달라진 것
-- **해결 방향**: Sealed Secrets 도입으로 비밀번호를 Git에서 관리
-  - `grafana.admin.existingSecret: grafana-admin-secret` 설정 → Helm이 Secret을 직접 생성하지 않으므로 checksum drift 발생 안 함
-  - `infra/manifests/monitoring-secrets/grafana-admin-sealedsecret.yaml`에서 SealedSecret으로 관리
-- **남은 작업**:
-  - [ ] `docs/sealed-secrets-setup.md` 절차에 따라 sealed-secrets 컨트롤러 설치
-  - [ ] kubeseal로 `grafana-admin-sealedsecret.yaml` 생성 후 커밋
-  - [ ] ArgoCD Application 2개 등록(`sealed-secrets`, `monitoring-secrets`)
-  - [ ] prometheus-stack sync 후 OutOfSync 해소 확인
 
 ### [5단계] ArgoCD — PreSync Hook Job hang 반복
 
@@ -133,6 +120,15 @@ Grafana 12.x에서 파일 기반 datasource provisioning이 재시작 시 실행
 ---
 
 ## 해결된 이슈
+
+### [5단계] ArgoCD — prometheus-stack Grafana admin 비밀번호 OutOfSync (2026-04-01 해결)
+
+- **증상**: Grafana Secret(`my-kube-prometheus-stack-grafana`) 및 Deployment OutOfSync — Deployment 내 `checksum/secret` 어노테이션이 클러스터와 Git 값이 불일치
+- **실제 원인**: Grafana UI/API를 통해 admin 비밀번호를 직접 변경했기 때문에, 클러스터의 Secret과 Deployment checksum이 Helm chart가 렌더링하는 값과 달라진 것
+- **해결**: Sealed Secrets 도입으로 비밀번호를 Git에서 관리
+  - `grafana.admin.existingSecret: grafana-admin-secret` 설정 → Helm이 Secret을 직접 생성하지 않으므로 checksum drift 발생 안 함
+  - `infra/manifests/monitoring-secrets/grafana-admin-sealedsecret.yaml`에서 SealedSecret으로 관리
+  - ArgoCD Application 2개 등록(`sealed-secrets`, `monitoring-secrets`) 후 prometheus-stack sync로 OutOfSync 해소 확인
 
 ### [5단계] prometheus-stack Degraded 상태 (2026-03-30 해결)
 
