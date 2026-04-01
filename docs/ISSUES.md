@@ -13,23 +13,13 @@
 | 2 | Log-Trace Correlation — Tempo 링크 No data | 해결 |
 | 3 | Error Budget 대시보드 추가 | 예정 |
 | 4 | CPU 리소스 분석 + throttling 대시보드 | 예정 |
-| - | ArgoCD — mysql-operator CRD OutOfSync | 홀딩 |
+| - | ArgoCD — mysql-operator CRD OutOfSync | 해결 |
 | - | ArgoCD — prometheus-stack Grafana admin 비밀번호 OutOfSync | 해결 |
 | - | ArgoCD — PreSync Hook Job hang 반복 | 홀딩 |
 
 ---
 
 ## 미해결 이슈
-
-### [5단계] ArgoCD — mysql-operator CRD OutOfSync
-
-- **증상**: `innodbclusters.mysql.oracle.com` CRD 하나만 지속적으로 OutOfSync. `kubectl diff --server-side --field-manager=argocd-controller`로 확인 시 실제 내용 diff는 없음
-- **조치 완료**: `infra/argocd/obs-apps/mysql-operator.yaml`에 `ServerSideApply=true` 추가 후 `kubectl apply`로 클러스터에 반영
-- **미해결**: ArgoCD selfHeal 자동 sync operation에 `ServerSideApply=true`가 포함되지 않는 원인 불명. 내용 diff 없이 ArgoCD가 OutOfSync로 판단하는 이유 미파악
-- **다음 접근 방향**:
-  - ArgoCD UI에서 실제 diff 내용 직접 확인
-  - `ignoreDifferences` 규칙을 Application에 추가하여 CRD drift 무시 검토
-  - ArgoCD v3.3.6의 serverSideDiff + selfHeal 동작 관련 이슈 트래커 확인
 
 ### [5단계] ArgoCD — PreSync Hook Job hang 반복
 
@@ -120,6 +110,15 @@ Grafana 12.x에서 파일 기반 datasource provisioning이 재시작 시 실행
 ---
 
 ## 해결된 이슈
+
+### [5단계] ArgoCD — mysql-operator CRD OutOfSync (2026-04-01 해결)
+
+- **증상**: `innodbclusters.mysql.oracle.com` 등 `mysql-operator`가 설치하는 CRD의 다수 필드가 클러스터 측에만 존재하여 OutOfSync 발생.
+- **근본 원인**: 쿠버네티스 API 서버가 CRD를 저장할 때 스키마를 정규화하면서 `description: ''` 같은 필드를 자동으로 추가함. Git과 클러스터 상태 간의 불일치가 발생하여 ArgoCD가 이를 OutOfSync로 감지.
+- **시도 (실패)**: `ignoreDifferences`에 `jsonPointers`나 `jqPathExpressions`를 사용하여 `description` 필드를 무시하는 방법은 근본적인 해결책이 아니었음.
+- **해결**: ArgoCD Application에 `argocd.argoproj.io/compare-options: ServerSideDiff=true` 어노테이션을 추가하여 문제를 해결함.
+  - 이 옵션은 ArgoCD가 `kubectl diff` 대신 서버 측(Server-Side)에서 Diff를 계산하도록 하여, API 서버의 정규화로 인한 차이를 무시하고 CRD 불일치 문제를 근본적으로 해결함.
+- **적용 파일**: `infra/argocd/obs-apps/mysql-operator.yaml`
 
 ### [9단계] Metric-Trace Correlation (Exemplar → Tempo) 구축 (2026-04-01 해결)
 
