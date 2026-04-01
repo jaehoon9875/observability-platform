@@ -33,7 +33,6 @@ grafana:
       # exemplar → Tempo 연결 설정 추가
       exemplarTraceIdDestinations:
         datasourceUid: tempo
-        name: trace_id
         traceIdLabelName: trace_id
   deleteDatasources:
     - name: Tempo

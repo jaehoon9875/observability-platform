@@ -293,6 +293,7 @@ Prometheus가 기본으로 수집하지 않는 메트릭을 수집하는 독립 
 | 싱글노드 CPU 리소스 부족 | 9단계 |
 | 부하 테스트 후속 작업 | 4단계 |
 | Grafana datasource 관리 구조 개선 | - |
+| ~~Metric-Trace Correlation (Exemplar → Tempo) 구축~~ | ~~9단계~~ ✅ |
 
 ---
 

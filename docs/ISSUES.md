@@ -121,6 +121,21 @@ Grafana 12.x에서 파일 기반 datasource provisioning이 재시작 시 실행
 
 ## 해결된 이슈
 
+### [9단계] Metric-Trace Correlation (Exemplar → Tempo) 구축 (2026-04-01 해결)
+
+- **목표**: Alert 발생 → 메트릭 그래프 확인 → Exemplar 클릭 → Tempo trace 이동 흐름 완성
+- **구현 내용**:
+  - Prometheus `exemplar-storage` feature 활성화 (`prometheus.prometheusSpec.enableFeatures`)
+  - 3개 서비스 pom.xml에 `micrometer-tracing-bridge-otel` 추가 (OTel Agent ↔ Micrometer 브릿지)
+  - 3개 서비스 application.yml에 `http.server.requests` percentile histogram 활성화
+  - Grafana Prometheus datasource Exemplar 연결: `sidecar.datasources.exemplarTraceIdDestinations.traceIdLabelName: trace_id`
+- **트러블슈팅**:
+  - `defaultDatasourceEnabled: false` + `additionalDataSources` 교체 방식 → chart 내부 프로비저닝 충돌로 데이터 전체 소실. 기본 datasource 유지 방식으로 롤백
+  - chart 기본 exemplar label name이 `traceID`로 설정됨 → OTel Agent 실제 필드명 `trace_id`와 불일치로 Tempo 링크 미생성. `traceIdLabelName: trace_id`로 수정하여 해결
+- **완료 기준**: Prometheus Explore에서 Exemplar 점 클릭 시 Tempo trace로 직접 이동 확인 ✅
+
+
+
 ### [5단계] ArgoCD — prometheus-stack Grafana admin 비밀번호 OutOfSync (2026-04-01 해결)
 
 - **증상**: Grafana Secret(`my-kube-prometheus-stack-grafana`) 및 Deployment OutOfSync — Deployment 내 `checksum/secret` 어노테이션이 클러스터와 Git 값이 불일치
