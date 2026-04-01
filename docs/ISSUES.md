@@ -9,10 +9,9 @@
 
 | 순위 | 이슈 | 상태 |
 |------|------|------|
-| 1 | Grafana datasource provisioning (12.x 호환) | 예정 |
-| 2 | Log-Trace Correlation — Tempo 링크 No data | 해결 |
-| 3 | Error Budget 대시보드 추가 | 예정 |
-| 4 | CPU 리소스 분석 + throttling 대시보드 | 예정 |
+| 1 | CPU 리소스 분석 + throttling 대시보드 | 예정 |
+| 2 | Error Budget 대시보드 추가 | 예정 |
+| - | Grafana datasource 관리 구조 개선 | 홀딩 |
 | - | ArgoCD — mysql-operator CRD OutOfSync | 해결 |
 | - | ArgoCD — prometheus-stack Grafana admin 비밀번호 OutOfSync | 해결 |
 
