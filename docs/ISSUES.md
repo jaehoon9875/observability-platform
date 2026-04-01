@@ -15,31 +15,10 @@
 | 4 | CPU 리소스 분석 + throttling 대시보드 | 예정 |
 | - | ArgoCD — mysql-operator CRD OutOfSync | 해결 |
 | - | ArgoCD — prometheus-stack Grafana admin 비밀번호 OutOfSync | 해결 |
-| - | ArgoCD — PreSync Hook Job hang 반복 | 홀딩 |
 
 ---
 
 ## 미해결 이슈
-
-### [5단계] ArgoCD — PreSync Hook Job hang 반복
-
-- **증상**: `my-kube-prometheus-stack-admission-create` Job이 Complete 상태인데 ArgoCD가 Running으로 오인하여 sync가 무한 대기
-- **임시 조치**: `kubectl patch application prometheus-stack -n argocd --type merge -p '{"operation": null}'` 로 수동 해소
-- **다음 접근 방향**:
-  - prometheus-stack ArgoCD Application에 hook 정책 조정 또는 `ignoreDifferences` 적용으로 근본 해결 검토
-
-### [2단계] Log-Trace Correlation — Tempo 링크 클릭 시 No data (2026-03-31 해결)
-
-- **증상**: Loki 로그에서 "Tempo에서 트레이스 보기" 링크 클릭 시 Tempo Explore 페이지로 이동하나 TraceQL 쿼리가 비어있고 No data
-- **근본 원인**: Loki derived field에 `url` 필드 누락. `datasourceUid`만 설정하면 Grafana가 캡처한 trace_id 값을 Tempo에 전달할 경로를 알 수 없어 TraceQL 쿼리가 빈 상태로 열림
-- **해결**: `url: "${__value.raw}"` 추가 → 캡처된 trace_id 값을 그대로 Tempo에 전달
-  - `custom-values.yaml` 수정 + Grafana API PUT으로 즉시 적용
-  - 브라우저 새로고침 후 링크 정상 동작 확인
-- **완료된 작업 전체**:
-  - Alloy stage.json 필드명 오류 수정: `traceId` → `trace_id`, `spanId` → `span_id`
-  - Grafana Loki Derived Fields: matcherType `label` → `regex`, matcherRegex `"trace_id":"([a-f0-9]{32})"`
-  - Grafana DB에서 Loki datasource 삭제 후 API로 직접 생성 (UPDATE 미적용 문제 우회)
-  - derived field `url: "${__value.raw}"` 추가 (Grafana API PUT 적용)
 
 ### [9단계] 싱글노드 CPU 리소스 부족
 
@@ -120,6 +99,19 @@ Grafana 12.x에서 파일 기반 datasource provisioning이 재시작 시 실행
   - 이 옵션은 ArgoCD가 `kubectl diff` 대신 서버 측(Server-Side)에서 Diff를 계산하도록 하여, API 서버의 정규화로 인한 차이를 무시하고 CRD 불일치 문제를 근본적으로 해결함.
 - **적용 파일**: `infra/argocd/obs-apps/mysql-operator.yaml`
 
+### [2단계] Log-Trace Correlation — Loki → Tempo 링크 연동 (2026-03-31 해결)
+
+- **증상**: Loki 로그에서 "Tempo에서 트레이스 보기" 링크 클릭 시 Tempo Explore 페이지로 이동하나 TraceQL 쿼리가 비어있고 No data
+- **근본 원인**: Loki derived field에 `url` 필드 누락. `datasourceUid`만 설정하면 Grafana가 캡처한 trace_id 값을 Tempo에 전달할 경로를 알 수 없어 TraceQL 쿼리가 빈 상태로 열림
+- **해결**: `url: "${__value.raw}"` 추가 → 캡처된 trace_id 값을 그대로 Tempo에 전달
+  - `custom-values.yaml` 수정 + Grafana API PUT으로 즉시 적용
+  - 브라우저 새로고침 후 링크 정상 동작 확인
+- **완료된 작업 전체**:
+  - Alloy stage.json 필드명 오류 수정: `traceId` → `trace_id`, `spanId` → `span_id` (커밋 `d9ffb38`)
+  - Grafana Loki Derived Fields: matcherType `label` → `regex`, matcherRegex `"trace_id":"([a-f0-9]{32})"` (커밋 `9818c51`)
+  - Grafana DB에서 Loki datasource 삭제 후 API로 직접 생성 (UPDATE 미적용 문제 우회)
+  - derived field `url: "${__value.raw}"` 추가 (Grafana API PUT 적용)
+
 ### [9단계] Metric-Trace Correlation (Exemplar → Tempo) 구축 (2026-04-01 해결)
 
 - **목표**: Alert 발생 → 메트릭 그래프 확인 → Exemplar 클릭 → Tempo trace 이동 흐름 완성
@@ -161,9 +153,3 @@ Grafana 12.x에서 파일 기반 datasource provisioning이 재시작 시 실행
 `initChownData: true`로 init container를 활성화하면 `CAP_CHOWN`만 보유한 채로 mode 700 디렉토리(`pdf/csv/png`)를 재귀 탐색 시도 → `DAC_OVERRIDE` 부재로 Permission denied 발생.
 → `securityContext.fsGroup: 472` 유지, `initChownData.enabled: false`로 최종 수정.
 
-### [2단계] Log-Trace Correlation 전체 완료 (2026-03-31 해결)
-
-- Alloy stage.json 필드명 오류 수정: `traceId` → `trace_id`, `spanId` → `span_id` (커밋 `d9ffb38`)
-- Grafana Loki Derived Fields: matcherType `label` → `regex`, matcherRegex `"trace_id":"([a-f0-9]{32})"` (커밋 `9818c51`)
-- Grafana provisioning UPDATE 문제 → Grafana API로 직접 datasource 생성으로 우회
-- derived field `url: "${__value.raw}"` 누락 추가 → Tempo internal link에서 trace_id 값 전달 정상화
