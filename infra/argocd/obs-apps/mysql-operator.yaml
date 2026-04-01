@@ -24,14 +24,13 @@ spec:
     - group: apiextensions.k8s.io
       kind: CustomResourceDefinition
       name: innodbclusters.mysql.oracle.com
-      jqPathExpressions:
-        # 모든 버전의 properties 하위의 모든 description 필드를 무시
-        - '.spec.versions[].schema.openAPIV3Schema.properties | .. | .description?'
+      jsonPointers:
+        - /spec
     - group: apiextensions.k8s.io
       kind: CustomResourceDefinition
       name: mysqlbackups.mysql.oracle.com
-      jqPathExpressions:
-        - '.spec.versions[].schema.openAPIV3Schema.properties | .. | .description?'
+      jsonPointers:
+        - /spec
   syncPolicy:
     automated:
       prune: true
