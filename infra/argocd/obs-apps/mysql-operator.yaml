@@ -25,7 +25,12 @@ spec:
       kind: CustomResourceDefinition
       name: innodbclusters.mysql.oracle.com
       jsonPointers:
-        - /spec/versions/0/schema/openAPIV3Schema/properties/spec/properties/endpoints/description
+        - /spec/versions/0/schema/openAPIV3Schema/properties/spec/properties/.*
+    - group: apiextensions.k8s.io
+      kind: CustomResourceDefinition
+      name: mysqlbackups.mysql.oracle.com
+      jsonPointers:
+        - /spec/versions/0/schema/openAPIV3Schema/properties/spec/properties/.*
   syncPolicy:
     automated:
       prune: true
