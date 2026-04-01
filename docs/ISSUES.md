@@ -134,8 +134,13 @@ Grafana 12.x부터 datasource 관리가 Kubernetes-native 스토리지 방식으
 **원인 2 — Grafana init-chown-data Permission denied (SSA 필드 소유권 충돌)**
 초기 설치 시 `helm upgrade` CLI로 직접 배포했기 때문에 `helm` 필드 매니저가 Grafana Deployment의 `initContainers` 필드를 소유.
 이후 `initChownData.enabled: false`(커밋 `4fde0c1`)를 custom-values.yaml에 적용했으나, ArgoCD SSA는 자신(`argocd-controller`)이 소유하지 않은 필드를 제거하지 않아 init 컨테이너가 계속 실행됨.
-`kubectl patch deployment ... --type=json -p='[{"op":"remove","path":"/spec/template/spec/initContainers"}]'` 로 강제 제거 후 정상화.
+`kubectl patch deployment ... --type=json -p='[{"op":"remove","path":"/spec/template/spec/initContainers"}]'` 로 강제 제거 후 일시 정상화.
 → **근본 원인**: ArgoCD로 관리되는 리소스를 `helm upgrade` CLI로 직접 수정하면 SSA 필드 소유권이 분리되어 ArgoCD가 특정 필드를 관리하지 못하는 문제 발생.
+
+**추가 수정 — initChownData: false는 올바른 해결책이 아님**
+`initChownData: false`로 initContainer를 비활성화하면 신규 PV 최초 기동 시 `/var/lib/grafana`가 root 소유인 채로 남아 Grafana(uid 472)가 쓰기 불가 상태가 된다.
+올바른 해결책은 Kubernetes `fsGroup`을 사용하는 것이다. `fsGroup: 472`를 설정하면 kubelet이 PV 마운트 시 자동으로 GID 472로 소유권을 변경하므로, initContainer 없이도 최초 기동부터 권한 문제가 없다.
+→ `custom-values.yaml`에 `securityContext.fsGroup: 472` 추가 및 `initChownData.enabled: true`(기본값 명시)로 수정 완료.
 
 ### [2단계] Log-Trace Correlation 파이프라인 설정 (완료)
 
