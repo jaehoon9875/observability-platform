@@ -5,6 +5,12 @@
 
 # Grafana 추가 데이터소스 (Loki, Tempo 연동)
 grafana:
+  # admin 비밀번호는 SealedSecret(grafana-admin-secret)으로 관리
+  # 비밀번호 변경 시 docs/sealed-secrets-setup.md 참조
+  admin:
+    existingSecret: grafana-admin-secret
+    userKey: admin-user
+    passwordKey: admin-password
   # fsGroup: 472로 kubelet이 볼륨 마운트 시 GID 소유권을 자동 변경하므로
   # init-chown-data 컨테이너는 불필요. 또한 init 컨테이너는 CAP_CHOWN만 보유하여
   # DAC_OVERRIDE 없이 mode 700 디렉토리(pdf/csv/png)를 재귀 탐색 불가 → Permission denied.
