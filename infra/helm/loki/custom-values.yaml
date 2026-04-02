@@ -39,3 +39,14 @@ write:
   replicas: 0
 backend:
   replicas: 0
+
+# 싱글노드 환경용 memcached 리소스 조정
+# 기본값: allocatedCPU 500m, allocatedMemory 8192MB(chunks)/1024MB(results)
+# → 싱글노드 4코어 환경에서 memcached 2개가 CPU 25%, 메모리 69%를 점유하여 과도
+chunksCache:
+  allocatedCPU: 100m
+  allocatedMemory: 512
+
+resultsCache:
+  allocatedCPU: 100m
+  allocatedMemory: 256
