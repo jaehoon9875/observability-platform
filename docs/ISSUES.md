@@ -9,7 +9,7 @@
 
 | 순위 | 이슈 | 상태 |
 |------|------|------|
-| 1 | CPU 리소스 분석 + throttling 대시보드 | 예정 |
+| 1 | CPU 리소스 분석 + throttling 대시보드 | 해결 |
 | 2 | Error Budget 대시보드 추가 | 예정 |
 | - | Grafana datasource 관리 구조 개선 | 홀딩 |
 | - | ArgoCD — mysql-operator CRD OutOfSync | 해결 |
@@ -18,17 +18,6 @@
 ---
 
 ## 미해결 이슈
-
-### [9단계] 싱글노드 CPU 리소스 부족
-
-- **증상**: CPU requests 합계가 3960m/4000m(99%)로 k6 Job 등 추가 Pod 스케줄링 불가
-- **주요 원인**: loki-chunks-cache, loki-results-cache(memcached) 각 500m 요청 — 싱글노드 환경에 과도
-- **분석 계획**: `docs/resource-sizing-analysis.md` 참조 (실제 사용량 분석 → 근거 기반 조정 → 검증 순서)
-- **남은 작업**:
-  - [ ] 실제 CPU/Memory 사용량 수집 및 requests/limits 대비 분석 (`docs/resource-sizing-analysis.md` 1단계)
-  - [ ] 서비스별 심층 분석 — Java JVM, Loki memcached, Kafka (`docs/resource-sizing-analysis.md` 2단계)
-  - [ ] 분석 결과 기반으로 infra/ 값 조정 (`docs/resource-sizing-analysis.md` 3단계)
-  - [ ] 조정 후 k6 부하 테스트 재실행 및 trace_id 동작 검증 (`docs/resource-sizing-analysis.md` 4단계)
 
 ### [4단계] 부하 테스트 후속 작업
 
@@ -88,6 +77,16 @@ Grafana 12.x에서 파일 기반 datasource provisioning이 재시작 시 실행
 ---
 
 ## 해결된 이슈
+
+### [9단계] 싱글노드 CPU 리소스 부족 (2026-04-02 해결)
+
+- **증상**: CPU requests 합계 3810m/4000m(95%), payment-service Pending, k6 Job 스케줄링 불가
+- **근본 원인**: Loki chart 기본값 `chunksCache.allocatedMemory: 8192MB`가 그대로 적용되어 memcached 2개가 CPU 1000m(25%), 메모리 11GB(69%)를 점유
+- **해결**: `infra/helm/loki/custom-values.yaml`에서 memcached 리소스 조정
+  - `chunksCache`: allocatedCPU 500m→100m, allocatedMemory 8192→512MB
+  - `resultsCache`: allocatedCPU 500m→100m, allocatedMemory 1024→256MB
+- **결과**: CPU 3810m(95%)→3260m(81%), Memory 14693Mi(93%)→4811Mi(30%), payment-service 정상 스케줄링 확인
+- **상세 분석**: `docs/resource-sizing-analysis.md` 참조
 
 ### [5단계] ArgoCD — mysql-operator CRD OutOfSync (2026-04-01 해결)
 
