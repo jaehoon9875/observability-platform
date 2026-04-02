@@ -52,7 +52,7 @@ grafana:
           - name: TraceID
             matcherType: regex
             matcherRegex: '"trace_id":"([a-f0-9]{32})"'
-            url: "${__value.raw}"
+            url: "$${__value.raw}"
             datasourceUid: tempo
             urlDisplayLabel: "View trace in Tempo"
       secureJsonData:
