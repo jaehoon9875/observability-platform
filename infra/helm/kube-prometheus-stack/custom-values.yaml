@@ -74,3 +74,5 @@ grafana:
             # OTel resource attribute 실제 키명: service.name (resource. 접두사는 TraceQL 문법)
             - key: service.name
               value: app
+        lokiSearch:
+          datasourceUid: loki
