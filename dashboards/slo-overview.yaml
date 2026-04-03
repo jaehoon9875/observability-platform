@@ -234,6 +234,70 @@ data:
           ]
         },
         {
+          "id": 9,
+          "type": "timeseries",
+          "title": "Pod 재시작 횟수",
+          "description": "Pod crash/OOM 등으로 인한 재시작. HTTP 메트릭에 잡히지 않는 장애를 보완한다.",
+          "gridPos": { "x": 0, "y": 20, "w": 12, "h": 8 },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "custom": { "lineWidth": 2 },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": null },
+                  { "color": "yellow", "value": 1 },
+                  { "color": "red", "value": 3 }
+                ]
+              }
+            }
+          },
+          "targets": [
+            {
+              "expr": "increase(kube_pod_container_status_restarts_total{namespace=\"obs-apps\", container=~\"$job\"}[5m])",
+              "legendFormat": "재시작 ({{pod}})",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "id": 10,
+          "type": "stat",
+          "title": "Pod 가용성 (1h, scrape 기준)",
+          "description": "Prometheus scrape 성공률 기준 가용성. pod가 down되면 up=0으로 반영된다.",
+          "gridPos": { "x": 12, "y": 20, "w": 12, "h": 8 },
+          "options": {
+            "reduceOptions": { "calcs": ["lastNotNull"] },
+            "orientation": "auto",
+            "textMode": "auto",
+            "colorMode": "background",
+            "graphMode": "area"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percentunit",
+              "min": 0,
+              "max": 1,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "red", "value": null },
+                  { "color": "yellow", "value": 0.995 },
+                  { "color": "green", "value": 0.999 }
+                ]
+              }
+            }
+          },
+          "targets": [
+            {
+              "expr": "avg_over_time(up{job=~\"$job\"}[1h])",
+              "legendFormat": "{{job}}",
+              "refId": "A"
+            }
+          ]
+        },
+        {
           "id": 8,
           "type": "timeseries",
           "title": "payment-service 호출 시간",
