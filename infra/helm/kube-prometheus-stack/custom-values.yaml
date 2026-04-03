@@ -65,11 +65,11 @@ grafana:
       jsonData:
         tracesToLogsV2:
           datasourceUid: loki
-          filterByTraceID: false
+          filterByTraceID: true
           filterBySpanID: false
-          customQuery: true
+          # customQuery: true
           # trace_id는 structured_metadata에 저장 → | json 파싱 불필요, 직접 필터링
-          query: '{app="$${__tags.app}"} | trace_id="$${__trace.traceId}"'
+          # query: '{app="$${__tags.app}"} | trace_id="$${__trace.traceId}"'
           tags:
             # OTel resource attribute 실제 키명: service.name (resource. 접두사는 TraceQL 문법)
             - key: service.name
