@@ -65,8 +65,10 @@ grafana:
       jsonData:
         tracesToLogsV2:
           datasourceUid: loki
-          filterByTraceID: true
+          filterByTraceID: false
           filterBySpanID: false
+          customQuery: true
+          query: '{app="${__tags.app}", namespace="${__tags.namespace}"} | json | trace_id="${__trace.traceId}"'
           tags:
             - key: service.name
               value: app
