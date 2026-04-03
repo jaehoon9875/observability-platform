@@ -44,7 +44,7 @@ GitHub Repository
 ```
 
 <!-- {ArgoCD UI 스크린샷 - Application 목록 Synced 상태} -->
-<!-- 예: ![ArgoCD Applications](docs/images/argocd-applications.png) -->
+![ArgoCD Applications](docs/images/argocd-applications.png)
 
 ## 주요 구현 하이라이트
 
@@ -58,8 +58,8 @@ GitHub Repository
 <!-- {Grafana SLO 대시보드 스크린샷} -->
 ![Grafana SLO Dashboard](docs/images/grafana-slo-dashboard.png)
 
-<!-- {Grafana 분산 트레이싱 스크린샷 - Tempo + 로그 연동} -->
-<!-- 예: ![Distributed Tracing](docs/images/grafana-tracing.png) -->
+<!-- {Grafana 분산 트레이싱 스크린샷 - Tempo 트레이스 + Loki 로그 연동} -->
+![Distributed Tracing](docs/images/grafana-tracing.png)
 
 ## 프로젝트 구조
 
