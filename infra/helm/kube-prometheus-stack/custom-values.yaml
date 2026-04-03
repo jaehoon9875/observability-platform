@@ -65,12 +65,14 @@ grafana:
       jsonData:
         tracesToLogsV2:
           datasourceUid: loki
-          filterByTraceID: true
+          filterByTraceID: true 
           filterBySpanID: false
           customQuery: true
+          # Loki 라벨 'app'과 로그 본문의 'trace_id' 필드를 모두 조준합니다.
           query: '{app="$${__tags.app}"} | json | trace_id="$${__trace.traceId}"'
           tags:
-            - key: service.name
+            # service.name은 Resource Attribute이므로 명확히 지정해봅니다.
+            # 만약 resource.service.name으로도 안 나오면, 그냥 'service.name'으로 두고 
+            # filterByTraceID를 true로 해서 버튼을 강제로 살리는게 최선입니다.
+            - key: resource.service.name 
               value: app
-        lokiSearch:
-          datasourceUid: loki
