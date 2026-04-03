@@ -50,7 +50,7 @@ public class PaymentClient {
      * @param amount  결제 금액
      * @throws org.springframework.web.client.RestClientException HTTP 호출 실패 또는 4xx/5xx 응답 시
      */
-    @Timed(value = "payment_call_duration_seconds", description = "payment-service 호출 시간")
+    @Timed(value = "payment_call_duration_seconds", description = "payment-service 호출 시간", histogram = true)
     public void processPayment(Long orderId, BigDecimal amount) {
         String url = paymentServiceUrl + "/api/payments";
         Map<String, Object> request = Map.of("orderId", orderId, "amount", amount);
