@@ -40,25 +40,22 @@ alloy:
       }
       discovery.relabel "pod_logs" {
         targets = discovery.kubernetes.pod.targets
+
+        // --- 스트림 라벨: 낮은 카디널리티만 허용 ---
         rule {
           source_labels = ["__meta_kubernetes_namespace"]
           action = "replace"
           target_label = "namespace"
         }
         rule {
-          source_labels = ["__meta_kubernetes_pod_name"]
+          source_labels = ["__meta_kubernetes_pod_label_app_kubernetes_io_name"]
           action = "replace"
-          target_label = "pod"
+          target_label = "app"
         }
         rule {
           source_labels = ["__meta_kubernetes_pod_container_name"]
           action = "replace"
           target_label = "container"
-        }
-        rule {
-          source_labels = ["__meta_kubernetes_pod_label_app_kubernetes_io_name"]
-          action = "replace"
-          target_label = "app"
         }
         rule {
           source_labels = ["__meta_kubernetes_namespace", "__meta_kubernetes_pod_container_name"]
@@ -67,6 +64,8 @@ alloy:
           separator = "/"
           replacement = "$1"
         }
+
+        // --- 파일 경로 (내부용, 라벨 아님) ---
         rule {
           source_labels = ["__meta_kubernetes_pod_uid", "__meta_kubernetes_pod_container_name"]
           action = "replace"
@@ -74,12 +73,12 @@ alloy:
           separator = "/"
           replacement = "/var/log/pods/*$1/*.log"
         }
+
+        // --- pod명은 일단 라벨로 수집 후 loki.process에서 structured_metadata로 이동 ---
         rule {
-          source_labels = ["__meta_kubernetes_pod_container_id"]
+          source_labels = ["__meta_kubernetes_pod_name"]
           action = "replace"
-          target_label = "container_runtime"
-          regex = `^(\S+):\/\/.+$`
-          replacement = "$1"
+          target_label = "pod"
         }
       }
       loki.source.kubernetes "pod_logs" {
@@ -93,6 +92,16 @@ alloy:
           }
         }
 
+        // pod명: 고카디널리티이므로 라벨에서 structured_metadata로 이동 후 라벨 제거
+        stage.structured_metadata {
+          values = {
+            pod = "",
+          }
+        }
+        stage.label_drop {
+          values = ["pod"]
+        }
+
         // JSON 로그에서 trace_id/span_id 추출 (OTel Java Agent → MDC → logstash-logback-encoder)
         // JSON 파싱 실패 시(텍스트 로그) 해당 스테이지는 무시되므로 비-JSON Pod에도 안전
         stage.json {
@@ -101,7 +110,7 @@ alloy:
             span_id  = "span_id",
           }
         }
-        stage.labels {
+        stage.structured_metadata {
           values = {
             trace_id = "",
             span_id  = "",
