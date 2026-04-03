@@ -71,6 +71,6 @@ grafana:
           # trace_id는 structured_metadata에 저장 → | json 파싱 불필요, 직접 필터링
           query: '{app="$${__tags.app}"} | trace_id="$${__trace.traceId}"'
           tags:
-            # Tempo resource.service.name == Loki app 라벨 (OTEL_SERVICE_NAME과 동일 값)
-            - key: resource.service.name
+            # OTel resource attribute 실제 키명: service.name (resource. 접두사는 TraceQL 문법)
+            - key: service.name
               value: app
