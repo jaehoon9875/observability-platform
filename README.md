@@ -2,6 +2,8 @@
 
 Kubernetes 기반 MSA 환경에서 Observability 플랫폼을 구축하고, 장애를 시뮬레이션하며, 탐지·대응·분석을 자동화하는 프로젝트입니다.
 
+SRE/Observability 엔지니어링에 관심을 갖고, 실무에서 마주치는 문제(메트릭 수집, 분산 트레이싱, SLO 기반 알림, GitOps 배포)를 직접 구현하며 학습하기 위해 시작했습니다.
+
 ## Architecture
 
 ```
@@ -40,6 +42,24 @@ GitHub Repository
 │  └───────────────────────┘  └──────────────────────────────┘   │
 └─────────────────────────────────────────────────────────────────┘
 ```
+
+<!-- {ArgoCD UI 스크린샷 - Application 목록 Synced 상태} -->
+<!-- 예: ![ArgoCD Applications](docs/images/argocd-applications.png) -->
+
+## 주요 구현 하이라이트
+
+- **GitOps 파이프라인 end-to-end 자동화**: GitHub Actions에서 이미지 빌드/GHCR push → `infra/` 이미지 태그 자동 업데이트 커밋 → ArgoCD 감지 → 클러스터 자동 배포까지 완전 자동화
+- **커스텀 Prometheus Exporter 개발**: Prometheus가 기본 수집하지 않는 Kafka Consumer Lag을 Java(Spring Boot + Micrometer)로 직접 개발한 Exporter로 수집 및 Grafana 시각화
+- **분산 트레이싱 연동**: OpenTelemetry Java Agent → Tempo → Grafana 로그-트레이스 상관관계(Log-Trace Correlation) 구현
+- **SLO 기반 Alert Rule 설계**: 가용성 99.9% / P99 응답시간 500ms 이내 기준으로 Prometheus Alert Rule 작성 및 클러스터 적용 검증
+- **Grafana 대시보드 설계**: SLO 현황(가용성·에러 버짓·P99) + JVM 성능 분석(Heap/GC/Thread) 대시보드를 JSON으로 버전 관리, ConfigMap 기반 자동 로드
+- **k6 부하 테스트 시나리오**: 정상 트래픽·급증(spike) 시나리오 작성 및 실행으로 Alert Rule 트리거 및 메트릭 변화 검증
+
+<!-- {Grafana SLO 대시보드 스크린샷} -->
+![Grafana SLO Dashboard](docs/images/grafana-slo-dashboard.png)
+
+<!-- {Grafana 분산 트레이싱 스크린샷 - Tempo + 로그 연동} -->
+<!-- 예: ![Distributed Tracing](docs/images/grafana-tracing.png) -->
 
 ## 프로젝트 구조
 
@@ -92,74 +112,40 @@ observability-platform/
 
 ## 기술 스택
 
-
 | 영역                   | 기술                                      |
 | -------------------- | --------------------------------------- |
-| Language & Framework | Java, Spring Boot, JPA/Hibernate        |
+| Language & Framework | Java 17, Spring Boot 3.x, JPA/Hibernate |
 | Infrastructure       | Kubernetes (kubeadm), ArgoCD            |
 | Observability        | Prometheus, Grafana, Loki, Alloy, Tempo |
 | Load Testing         | k6                                      |
 | Scripting            | Python, Shell Script                    |
 | Database             | MySQL, Redis, Kafka                     |
-| CI/CD                | ArgoCD, GitHub Actions                  |
+| CI/CD                | GitHub Actions, ArgoCD                  |
 
+## Getting Started
 
-## 각 디렉토리 상세 설명
+**사전 요구사항**: Kubernetes 클러스터 (kubeadm), kubectl, Helm 3.x, ArgoCD
 
-### sample-apps/
+1. ArgoCD 설치 및 설정 → [docs/argocd-setup.md](docs/argocd-setup.md)
+2. `infra/argocd/` 의 Application 매니페스트 등록 → 클러스터 자동 동기화
+3. sample-apps DB Secret 수동 생성 → [docs/mysql-setup.md](docs/mysql-setup.md)
+4. k6 부하 테스트 실행 → [docs/run-k6-guide.md](docs/run-k6-guide.md)
 
-Observability 스택의 관측 대상이 되는 간단한 MSA 애플리케이션입니다.
+## 문서
 
-- 서비스 간 REST API 통신으로 분산 환경을 구성합니다.
-- Micrometer를 통해 커스텀 비즈니스 메트릭(주문 처리 시간, 결제 실패율 등)을 노출합니다.
-- OpenTelemetry로 분산 트레이싱을 연동합니다.
-
-### custom-exporter/
-
-Prometheus가 기본으로 수집하지 않는 메트릭을 수집하는 독립 프로그램입니다.
-
-- 예: Kafka Consumer Lag, MySQL Slow Query 빈도 등
-- `/metrics` 엔드포인트를 통해 Prometheus가 스크랩할 수 있도록 구성합니다.
-
-### infra/
-
-모든 인프라를 코드로 관리합니다 (GitOps).
-
-- ArgoCD가 이 디렉토리를 바라보며, Git push만으로 클러스터 상태가 동기화됩니다.
-- Helm chart의 values.yaml을 통해 각 Observability 도구의 설정을 버전 관리합니다.
-
-### dashboards/
-
-직접 설계한 Grafana 대시보드를 JSON으로 관리합니다.
-
-- SLO 현황 대시보드: 서비스별 가용성, 에러 버짓 소진율
-- JVM 분석 대시보드: Heap 사용량, GC 빈도, 스레드 상태
-
-### alerts/
-
-SLO 기반의 Alert Rule을 정의합니다.
-
-- 에러율이 SLO 임계치를 초과할 때 알림
-- Pod 리소스 사용량 이상 감지
-
-### tests/
-
-k6로 작성한 부하 테스트 시나리오입니다. 테스트 유형별로 서브디렉토리로 구분합니다.
-
-- `load-test/`: 정상 트래픽 시뮬레이션 (점진적 VU 증가)
-- `spike-test/`: 갑작스러운 트래픽 급증 시뮬레이션 (Alert Rule 트리거 검증)
-- 테스트 결과를 Prometheus 메트릭으로 내보내 Grafana에서 시각화 가능
-
-### scripts/
-
-반복적인 운영 작업을 자동화하는 스크립트 모음입니다.
-
-- `incident-collector.sh`: 장애 발생 시 Pod 로그, describe, 이벤트를 한 번에 수집
-- `heap-analyzer.py`: JVM 힙 덤프를 파싱하여 메모리 누수 의심 객체를 요약
+| 문서 | 설명 |
+|------|------|
+| [docs/argocd-setup.md](docs/argocd-setup.md) | ArgoCD 설치 및 Application 등록 가이드 |
+| [docs/kafka-setup.md](docs/kafka-setup.md) | Kafka(Strimzi) 구성 가이드 |
+| [docs/mysql-setup.md](docs/mysql-setup.md) | MySQL Operator 구성 및 DB 초기화 |
+| [docs/run-k6-guide.md](docs/run-k6-guide.md) | k6 부하 테스트 실행 가이드 |
+| [docs/load-testing.md](docs/load-testing.md) | 부하 테스트 시나리오 및 결과 |
+| [docs/observability-testing-guide.md](docs/observability-testing-guide.md) | Observability 스택 동작 검증 가이드 |
+| [docs/incident-collector-guide.md](docs/incident-collector-guide.md) | 장애 진단 스크립트 사용 가이드 |
+| [docs/PLAN.md](docs/PLAN.md) | 단계별 실행 계획 및 진행 상황 |
+| [docs/ISSUES.md](docs/ISSUES.md) | 이슈 및 개선 항목 |
 
 ## 실행 환경
 
 - 싱글노드 Kubernetes 클러스터 (kubeadm)
 - OS: Linux (홈서버)
-
-

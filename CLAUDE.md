@@ -29,6 +29,7 @@ dashboards/        → Grafana 대시보드 JSON
 alerts/            → Prometheus Alert Rule YAML
 tests/             → k6 부하 테스트 시나리오 (load-test/, spike-test/)
 scripts/           → 운영 자동화 스크립트
+docs/              → 문서
 ```
 
 ## Git Conventions
@@ -39,23 +40,9 @@ scripts/           → 운영 자동화 스크립트
 
 ## Current Status
 
-- 1단계 완료 ✅ (order-service 개발 및 배포, Prometheus/Grafana 메트릭 연동)
-- 2단계 완료 ✅ (payment/notification-service 개발, 분산 트레이싱 연동)
-- 3단계 완료 ✅ (SLO 대시보드, JVM 대시보드, Alert Rule 작성 및 클러스터 적용)
-- 4단계 일부 완료 🔄 (k6 시나리오 작성, 부하 테스트 실행 및 메트릭 변화 확인 완료 / 병목 분석 문서화, k6→Prometheus 연동은 홀딩)
-- 5단계 대부분 완료 🔄 (ArgoCD GitOps 전환 — alloy/kafka/loki/mysql/redis/sample-apps 등 Synced. mysql-operator·prometheus-stack OutOfSync 미해결)
-- 6단계 완료 ✅ (GitHub Actions CI — GHCR 빌드/push, deployment.yaml 자동 업데이트, ArgoCD 자동 배포 end-to-end 확인)
-- 7단계 완료 ✅ (Kafka Consumer Lag Exporter 개발 및 배포, Grafana 대시보드 확인)
-- 8단계 완료 ✅ (incident-collector.sh 작성 — Pod 로그/describe/events/top 자동 수집)
-- 현재: 9단계 (전체 리뷰 및 미해결 이슈 개선) 진행 중
-- 상세 계획: `docs/PLAN.md` 참조
-- 상세 이슈: `docs/ISSUES.md` 참조
-
-## Project Progress
-
-- 프로젝트의 단계별 진행 상황은 `docs/PLAN.md`에서 관리한다.
-- 작업 시작 전 `docs/PLAN.md`를 참조하여 현재 단계와 완료 여부를 확인한다.
-- 각 단계의 할 일 목록과 완료 기준을 숙지하고 작업한다.
+현재 **9단계 (전체 리뷰 및 미해결 이슈 개선)** 진행 중. 1~8단계 완료.
+- 단계별 상세 내용 및 진행 현황 → `docs/PLAN.md` 참조
+- 미해결 이슈 및 개선 항목 → `docs/ISSUES.md` 참조
 
 ## Important Rules
 

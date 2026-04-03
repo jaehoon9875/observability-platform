@@ -164,53 +164,13 @@ kafka → kafka-ui
 - sample-apps: DB Secret(`order-service-secret`, `payment-service-secret`)은 ArgoCD 관리 밖에서 수동 생성
 - k6: on-demand Job이므로 ArgoCD 관리 제외 — `kubectl apply`로 수동 실행
 
-## TODO
-
-### 인프라
-
-- [x] ArgoCD Application 매니페스트 작성 (`infra/argocd/`) — 초안 완료
-- [x] Observability 스택 Helm values 추출 및 정리 — 완료
-- [ ] ArgoCD 클러스터 설치 (`docs/argocd-setup.md` 참조)
-- [ ] ArgoCD Application 등록 및 동기화 확인
-- [ ] Kafka: 현재 K8s 매니페스트로 임시 배포 중. 추후 Helm chart 기반으로 전환 예정
-
-### 문서 정리 (`docs/`)
-
-- [ ] `docs/mysql-setup.md`: 버전 정보 테이블(버전 미확정 항목) 및 중복 섹션 제거로 문서 간결화
-- [ ] `docs/kafka-setup.md`: Strimzi 공식 예시 README 참조 링크 추가 — [strimzi-kafka-operator/examples/kafka/README.md](https://github.com/strimzi/strimzi-kafka-operator/blob/main/examples/kafka/README.md)
-
 ## MySQL 운영 참고
 
-### 배포 방식
+상세 내용은 [docs/mysql-setup.md](../docs/mysql-setup.md) 참조.
 
-MySQL은 **MySQL Operator(InnoDBCluster)** 패턴으로 배포되어 있다.
-일반 Deployment/StatefulSet과 달리 아래 특성을 가진다.
-
-- 파드명: `mysql-cluster-0` (StatefulSet, 레이블 `app=mysql-cluster` 없음)
-- 컨테이너 2개: `mysql`(DB 본체), `mysqlsh`(Shell 사이드카)
-- `kubectl exec` 시 반드시 `-c mysql`로 컨테이너를 명시해야 한다.
-
-### MySQL 접속 명령
-
-```bash
-# 레이블 셀렉터로 찾으면 items가 비어있어 오류 발생 → 파드명을 직접 지정할 것
-kubectl exec -it mysql-cluster-0 -n obs-apps \
-  -c mysql -- mysql -uroot -p
-```
-
-### 새 서비스용 DB 생성 패턴
-
-새로운 sample-app을 추가할 때마다 아래 순서로 DB를 생성한다.
-
-```sql
-CREATE DATABASE IF NOT EXISTS <서비스명>db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-SHOW DATABASES;
-EXIT;
-```
-
-현재 생성된 DB 목록:
-- `orderdb` — order-service
-- `paymentdb` — payment-service
+- 파드명 직접 지정 필요: `mysql-cluster-0` (레이블 셀렉터로 조회 시 items 비어있음)
+- `kubectl exec` 시 반드시 `-c mysql` 컨테이너 명시
+- 현재 생성된 DB: `orderdb` (order-service), `paymentdb` (payment-service)
 
 ## 수정 시 주의사항
 

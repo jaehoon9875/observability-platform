@@ -15,9 +15,9 @@ Observability 플랫폼의 관측 대상이 되는 MSA 샘플 애플리케이션
 
 | 서비스 | 역할 | 이미지 |
 |---|---|---|
-| order-service | 주문 생성/조회 API, payment-service 호출, Kafka 이벤트 발행 | `jaehoon9875/order-service:latest` |
-| payment-service | 결제 처리 API (order-service에서 REST 호출) | `jaehoon9875/payment-service:latest` |
-| notification-service | Kafka `order-completed` 토픽 구독 후 알림 처리 | `jaehoon9875/notification-service:latest` |
+| order-service | 주문 생성/조회 API, payment-service 호출, Kafka 이벤트 발행 | `ghcr.io/jaehoon9875/order-service:<sha>` |
+| payment-service | 결제 처리 API (order-service에서 REST 호출) | `ghcr.io/jaehoon9875/payment-service:<sha>` |
+| notification-service | Kafka `order-completed` 토픽 구독 후 알림 처리 | `ghcr.io/jaehoon9875/notification-service:<sha>` |
 
 ## 서비스 간 통신
 
@@ -41,34 +41,36 @@ notification-service → Kafka Consumer
 
 ## Docker 빌드 및 Push
 
-개발 환경이 Mac M1(arm64)이고 배포 환경이 Linux(amd64)이므로 멀티 플랫폼 빌드를 사용한다.
-`multiarch` buildx 빌더가 사전에 생성되어 있어야 한다.
+**소스 코드 변경 시 GitHub Actions CI가 자동으로 빌드/push를 처리한다.** (`.github/workflows/` 참조)
+- 이미지 레지스트리: GHCR (`ghcr.io/jaehoon9875/`)
+- 이미지 태그: git commit SHA
+
+로컬에서 수동 빌드가 필요한 경우 (개발 환경 Mac M1(arm64), 배포 환경 Linux(amd64)):
 
 ```bash
 # multiarch 빌더가 없을 경우 최초 1회 생성
 docker buildx create --name multiarch --driver docker-container --use
 
-# 멀티 플랫폼 빌드 + Docker Hub push (각 서비스 디렉토리에서 실행)
+# 멀티 플랫폼 빌드 + GHCR push (각 서비스 디렉토리에서 실행)
 docker buildx build \
   --builder multiarch \
   --platform linux/amd64,linux/arm64 \
   --push \
-  -t jaehoon9875/{service-name}:latest .
+  -t ghcr.io/jaehoon9875/{service-name}:<tag> .
 ```
 
 ## Kubernetes 배포
 
 네임스페이스: `obs-apps`
 
+sample-apps는 ArgoCD GitOps로 관리된다. **`kubectl apply` 직접 실행 금지.**
+- K8s 설정 변경: `infra/manifests/sample-apps/` 수정 → Git push → ArgoCD 자동 sync
+- 이미지 변경: GitHub Actions CI가 `infra/manifests/.../deployment.yaml` 이미지 태그 자동 업데이트
+
+배포 상태 확인:
 ```bash
-# 매니페스트 적용 (최초 배포 또는 K8s 설정 변경 시)
-kubectl apply -f infra/sample-apps/{service-name}/
-
-# 새 이미지 반영 (이미지만 변경됐을 때 — imagePullPolicy: Always)
-kubectl rollout restart deployment/{service-name} -n obs-apps
-
-# 롤아웃 완료 확인
 kubectl rollout status deployment/{service-name} -n obs-apps
+kubectl get pods -n obs-apps
 ```
 
 ## 커스텀 메트릭 (order-service)
