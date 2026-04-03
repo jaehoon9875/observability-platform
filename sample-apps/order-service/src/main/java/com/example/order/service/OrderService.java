@@ -102,6 +102,7 @@ public class OrderService {
         this.paymentCallTimer = Timer.builder("payment_call_duration_seconds")
                 .description("payment-service 호출 시간")
                 .publishPercentiles(0.5, 0.95, 0.99)
+                .publishPercentileHistogram(true)
                 .register(meterRegistry);
     }
 
