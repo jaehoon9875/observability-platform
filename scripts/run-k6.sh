@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
-# k6 부하 테스트 실행 스크립트
+# k6 부하 테스트 실행/중단 스크립트
 #
 # 사용법:
 #   ./scripts/run-k6.sh <type> [옵션]
 #
 # type:
-#   order-flow   정상 트래픽 시나리오
-#   spike-test   급증 시나리오
+#   order-flow          정상 트래픽 시나리오
+#   spike-test          급증 시나리오
+#   stop [시나리오]     실행 중인 Job 중단 (생략 시 전체 중단)
 #
 # 옵션 (order-flow):
 #   --vus <n>          최대 VU 수 (기본값: 10)
@@ -25,6 +26,8 @@
 #   ./scripts/run-k6.sh order-flow --vus 20 --sleep 0.5
 #   ./scripts/run-k6.sh spike-test --vus 40
 #   ./scripts/run-k6.sh spike-test --vus 40 --sleep 0.1
+#   ./scripts/run-k6.sh stop
+#   ./scripts/run-k6.sh stop spike-test
 
 set -euo pipefail
 
@@ -37,12 +40,40 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 TYPE="${1:-}"
 
 if [[ -z "${TYPE}" ]]; then
-  echo "사용법: $0 <order-flow|spike-test> [옵션]"
+  echo "사용법: $0 <order-flow|spike-test|stop> [옵션]"
   echo "  $0 order-flow --vus 20"
   echo "  $0 spike-test --vus 40 --sleep 0.1"
+  echo "  $0 stop"
+  echo "  $0 stop spike-test"
   exit 1
 fi
 shift
+
+# ── stop 처리 ──────────────────────────────────────────────
+
+if [[ "${TYPE}" == "stop" ]]; then
+  TARGET="${1:-all}"
+  case "${TARGET}" in
+    order-flow) STOP_JOBS=("k6-order-flow") ;;
+    spike-test) STOP_JOBS=("k6-spike-test") ;;
+    all)        STOP_JOBS=("k6-order-flow" "k6-spike-test") ;;
+    *) echo "오류: 알 수 없는 시나리오 '${TARGET}'. order-flow, spike-test, 또는 생략하세요."; exit 1 ;;
+  esac
+
+  DELETED=0
+  for JOB in "${STOP_JOBS[@]}"; do
+    if kubectl get job "${JOB}" -n "${NAMESPACE}" &>/dev/null; then
+      echo ">>> Job '${JOB}' 삭제 중..."
+      kubectl delete job "${JOB}" -n "${NAMESPACE}"
+      DELETED=$((DELETED + 1))
+    else
+      echo ">>> Job '${JOB}' 는 실행 중이 아닙니다."
+    fi
+  done
+
+  [[ ${DELETED} -gt 0 ]] && echo ">>> 완료: ${DELETED}개 Job 삭제됨" || true
+  exit 0
+fi
 
 # 기본값
 MAX_VUS="10"
@@ -128,6 +159,7 @@ metadata:
     app.kubernetes.io/part-of: observability-platform
 spec:
   ttlSecondsAfterFinished: 300
+  backoffLimit: 0
   template:
     metadata:
       labels:
@@ -162,7 +194,7 @@ spec:
               mountPath: /scripts
           resources:
             requests:
-              cpu: "250m"
+              cpu: "100m"
               memory: "128Mi"
             limits:
               cpu: "500m"

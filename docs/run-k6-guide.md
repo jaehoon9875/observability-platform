@@ -23,6 +23,7 @@
 2. ConfigMap 적용       (kubectl apply -f infra/k6/configmap.yaml)
        ↓
 3. Job 동적 생성        (인자로 받은 값을 env로 주입한 YAML을 즉석 생성)
+                        backoffLimit: 0 으로 실패 시 재시작 없음
        ↓
 4. Pod 준비 대기
        ↓
@@ -136,6 +137,21 @@ kubectl port-forward svc/kube-prometheus-stack-prometheus 9090:9090 -n monitorin
 
 ---
 
+## 테스트 중단
+
+```bash
+# 전체 k6 Job 중단
+./scripts/run-k6.sh stop
+
+# 특정 시나리오만 중단
+./scripts/run-k6.sh stop order-flow
+./scripts/run-k6.sh stop spike-test
+```
+
+Job을 삭제하면 실행 중인 Pod도 함께 종료된다.
+
+---
+
 ## 실행 중 Job 확인
 
 Ctrl+C로 로그 스트리밍을 중단해도 Job은 클러스터에서 계속 실행된다.
@@ -147,7 +163,7 @@ kubectl get job -n obs-apps
 # 로그 다시 붙기
 kubectl logs -f job/k6-order-flow -n obs-apps
 kubectl logs -f job/k6-spike-test -n obs-apps
-
-# 수동 삭제 (ttlSecondsAfterFinished: 300 설정으로 완료 5분 후 자동 삭제됨)
-kubectl delete job k6-order-flow -n obs-apps
 ```
+
+완료된 Job은 `ttlSecondsAfterFinished: 300` 설정으로 5분 후 자동 삭제된다.
+`backoffLimit: 0`이 설정되어 있어 k6가 실패해도 Pod를 재생성하지 않는다.
