@@ -68,7 +68,7 @@ grafana:
           filterByTraceID: false
           filterBySpanID: false
           customQuery: true
-          query: '{app="${__tags.app}", namespace="${__tags.namespace}"} | json | trace_id="${__trace.traceId}"'
+          query: '{app="$${__tags.app}", namespace="$${__tags.namespace}"} | json | trace_id="$${__trace.traceId}"'
           tags:
             - key: service.name
               value: app
