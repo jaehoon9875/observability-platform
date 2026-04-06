@@ -2,8 +2,7 @@
 
 Strimzi Operator를 사용하여 Kubernetes 위에 Kafka 클러스터를 구축하는 방법을 정리한 문서입니다.
 
-> **현재 상태**: kubectl을 사용한 수동 배포
-> **도입 예정**: ArgoCD를 통한 GitOps 자동화 (`infra/CLAUDE.md` 참고)
+> **현재 상태**: ArgoCD GitOps로 관리 중 (5단계 완료)
 
 ---
 
