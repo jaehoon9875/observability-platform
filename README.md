@@ -121,7 +121,7 @@ observability-platform/
 | Observability        | Prometheus, Grafana, Loki, Alloy, Tempo |
 | Load Testing         | k6                                      |
 | Scripting            | Python, Shell Script                    |
-| Database             | MySQL, Redis, Kafka                     |
+| Database             | MySQL, Kafka                            |
 | CI/CD                | GitHub Actions, ArgoCD                  |
 
 ## Getting Started
