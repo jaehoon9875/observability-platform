@@ -53,8 +53,10 @@ grafana:
         # JSON 필드명 변경(traceId→trace_id)에 영향을 받지 않는다.
         derivedFields:
           - name: TraceID
-            matcherType: label
-            matcherField: trace_id
+            # label 대신 regex(정규표현식)를 사용하여 로그 본문에서 직접 추출합니다.
+            matcherType: regex
+            # 로그 본문 중 "traceId":"여기에있는값" 을 캡처합니다.
+            matcherRegex: '"traceId"\s*:\s*"([^"]+)"'
             url: "$${__value.raw}"
             datasourceUid: tempo
             urlDisplayLabel: "View trace in Tempo"
