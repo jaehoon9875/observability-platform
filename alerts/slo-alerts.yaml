@@ -16,7 +16,7 @@ spec:
             /
             rate(http_server_requests_seconds_count{job="order-service"}[5m])
             > 0.001
-          for: 5m
+          for: 2m
           labels:
             severity: critical
             service: order-service
