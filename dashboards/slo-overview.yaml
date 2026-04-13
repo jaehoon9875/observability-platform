@@ -365,7 +365,9 @@ data:
             {
               "expr": "ALERTS{job=~\"$job\", alertstate=\"firing\"}",
               "legendFormat": "{{alertname}}",
-              "refId": "A"
+              "refId": "A",
+              "instant": false,
+              "range": true
             }
           ]
         }
