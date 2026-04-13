@@ -47,11 +47,14 @@ grafana:
       access: proxy
       jsonData:
         httpHeaderName1: "X-Scope-OrgID"
-        # Loki 라벨 trace_id → Tempo 링크 생성 (Log-Trace Correlation)
+        # Loki structured_metadata의 trace_id → Tempo 링크 생성 (Log-Trace Correlation)
+        # Alloy가 JSON의 traceId(Micrometer MDC)를 trace_id로 리매핑하여 structured_metadata에 저장.
+        # matcherType: label은 로그 body가 아닌 structured_metadata에서 직접 읽으므로
+        # JSON 필드명 변경(traceId→trace_id)에 영향을 받지 않는다.
         derivedFields:
           - name: TraceID
-            matcherType: regex
-            matcherRegex: '"trace_id":"([a-f0-9]{32})"'
+            matcherType: label
+            matcherField: trace_id
             url: "$${__value.raw}"
             datasourceUid: tempo
             urlDisplayLabel: "View trace in Tempo"

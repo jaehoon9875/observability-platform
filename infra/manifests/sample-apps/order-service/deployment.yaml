@@ -57,6 +57,12 @@ spec:
               value: none
             - name: OTEL_LOGS_EXPORTER
               value: none
+            # OTel Agent의 Logback MDC 계측 비활성화
+            # micrometer-tracing-bridge-otel이 traceId/spanId를 MDC에 주입하므로
+            # OTel Agent의 중복 주입(trace_id/span_id)을 방지한다.
+            # 참고: https://opentelemetry.io/docs/zero-code/java/agent/instrumentation/logback/
+            - name: OTEL_INSTRUMENTATION_LOGBACK_MDC_ENABLED
+              value: "false"
           resources:
             requests:
               cpu: 250m
