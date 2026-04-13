@@ -358,16 +358,21 @@ data:
                   { "color": "red", "value": 1 }
                 ]
               },
-              "custom": { "fillOpacity": 70 }
+              "custom": { "fillOpacity": 70 },
+              "mappings": [
+                { "type": "value", "options": { "0": { "text": "Normal" } } },
+                { "type": "value", "options": { "1": { "text": "Firing" } } }
+              ]
             }
           },
           "targets": [
             {
-              "expr": "ALERTS{job=~\"$job\", alertstate=\"firing\"}",
+              "expr": "ALERTS{job=~\"$job\", alertstate=\"firing\"} or vector(0)",
               "legendFormat": "{{alertname}}",
               "refId": "A",
               "instant": false,
-              "range": true
+              "range": true,
+              "format": "time_series"
             }
           ]
         }
