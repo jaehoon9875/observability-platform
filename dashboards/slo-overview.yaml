@@ -17,6 +17,21 @@ data:
       "time": { "from": "now-1h", "to": "now" },
       "schemaVersion": 36,
       "version": 1,
+      "annotations": {
+        "list": [
+          {
+            "name": "Alert Firing",
+            "datasource": { "type": "prometheus" },
+            "enable": true,
+            "hide": false,
+            "iconColor": "red",
+            "expr": "ALERTS{job=~\"$job\", alertstate=\"firing\"}",
+            "step": "60s",
+            "titleFormat": "{{alertname}}",
+            "textFormat": "{{alertname}} firing"
+          }
+        ]
+      },
       "templating": {
         "list": [
           {
@@ -320,6 +335,40 @@ data:
               "refId": "B"
             }
           ]
+        },
+        {
+          "id": 11,
+          "type": "state-timeline",
+          "title": "Alert 상태 (Firing 구간)",
+          "description": "Firing 상태인 Alert을 시간축으로 표시한다. 빨간 블록 = Firing 구간.",
+          "gridPos": { "x": 0, "y": 28, "w": 24, "h": 5 },
+          "options": {
+            "mergeValues": true,
+            "showValue": "never",
+            "alignValue": "left",
+            "rowHeight": 0.9
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "thresholds" },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": null },
+                  { "color": "red", "value": 1 }
+                ]
+              },
+              "custom": { "fillOpacity": 70 }
+            }
+          },
+          "targets": [
+            {
+              "expr": "ALERTS{job=~\"$job\", alertstate=\"firing\"}",
+              "legendFormat": "{{alertname}}",
+              "refId": "A"
+            }
+          ]
         }
       ]
     }
+
