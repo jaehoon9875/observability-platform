@@ -45,7 +45,6 @@ GitHub Repository
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-<!-- {ArgoCD UI 스크린샷 - Application 목록 Synced 상태} -->
 ![ArgoCD Applications](docs/images/argocd-applications.png)
 
 ## 주요 구현 하이라이트
@@ -57,10 +56,8 @@ GitHub Repository
 - **Grafana 대시보드 설계**: SLO 현황(가용성·에러 버짓·P99) + JVM 성능 분석(Heap/GC/Thread) 대시보드를 JSON으로 버전 관리, ConfigMap 기반 자동 로드
 - **k6 부하 테스트 시나리오**: 정상 트래픽·급증(spike) 시나리오 작성 및 실행으로 Alert Rule 트리거 및 메트릭 변화 검증
 
-<!-- {Grafana SLO 대시보드 스크린샷} -->
 ![Grafana SLO Dashboard](docs/images/grafana-slo-dashboard.png)
 
-<!-- {Grafana 분산 트레이싱 스크린샷 - Tempo 트레이스 + Loki 로그 연동} -->
 ![Distributed Tracing](docs/images/grafana-tracing.png)
 
 ## 프로젝트 구조
