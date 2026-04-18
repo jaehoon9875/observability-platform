@@ -66,17 +66,17 @@ spec:
             initialDelaySeconds: 30
             periodSeconds: 10
             failureThreshold: 20
-          # 파드가 살아있는지 확인 (실패 시 재시작)
+          # 파드가 살아있는지 확인 (실패 시 재시작) — 앱 내부 상태만 체크, 외부 의존성 제외
           livenessProbe:
             httpGet:
-              path: /actuator/health
+              path: /actuator/health/liveness
               port: 8080
             periodSeconds: 10
             failureThreshold: 3
-          # 파드가 트래픽을 받을 준비가 됐는지 확인
+          # 파드가 트래픽을 받을 준비가 됐는지 확인 — DB/Kafka/Redis 등 외부 의존성 포함
           readinessProbe:
             httpGet:
-              path: /actuator/health
+              path: /actuator/health/readiness
               port: 8080
             periodSeconds: 10
             failureThreshold: 3
