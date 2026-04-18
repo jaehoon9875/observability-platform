@@ -33,6 +33,8 @@ spec:
           envFrom:
             - configMapRef:
                 name: notification-service-config
+            - configMapRef:
+                name: otel-common-config
           # DB 인증 정보는 Secret에서 주입
           env:
             - name: DB_USERNAME
@@ -48,20 +50,6 @@ spec:
             # OTel Java Agent 설정
             - name: OTEL_SERVICE_NAME
               value: notification-service
-            - name: OTEL_EXPORTER_OTLP_ENDPOINT
-              value: http://tempo.monitoring:4318
-            - name: OTEL_TRACES_EXPORTER
-              value: otlp
-            - name: OTEL_METRICS_EXPORTER
-              value: none
-            - name: OTEL_LOGS_EXPORTER
-              value: none
-            # OTel Agent의 Logback MDC 계측 비활성화
-            # micrometer-tracing-bridge-otel이 traceId/spanId를 MDC에 주입하므로
-            # OTel Agent의 중복 주입(trace_id/span_id)을 방지한다.
-            # 참고: https://opentelemetry.io/docs/zero-code/java/agent/instrumentation/logback/
-            - name: OTEL_INSTRUMENTATION_LOGBACK_MDC_ENABLED
-              value: "false"
           resources:
             requests:
               cpu: 250m
