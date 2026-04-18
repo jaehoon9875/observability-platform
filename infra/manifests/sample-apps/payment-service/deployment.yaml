@@ -24,7 +24,7 @@ spec:
     spec:
       containers:
         - name: payment-service
-          image: ghcr.io/jaehoon9875/payment-service:sha-a42d12dfb2e0fd72151d61b48070aa2418dab2d0
+          image: ghcr.io/jaehoon9875/payment-service:sha-033793026cf5fb805148564b6e3cb4cd9f42110e
           imagePullPolicy: Always
           ports:
             - name: http
