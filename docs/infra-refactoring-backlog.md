@@ -15,17 +15,17 @@
 
 ## 우선순위 상 (즉시)
 
-1. `TODO` OTel 공통 env 중복 제거 (3개 서비스 Deployment)
+1. `DONE` OTel 공통 env 중복 제거 (3개 서비스 Deployment)
    - 대상: `infra/manifests/sample-apps/*/deployment.yaml`
    - 액션: 공통 ConfigMap 도입, `OTEL_SERVICE_NAME`만 서비스별 유지
 
-2. `TODO` Probe 경로 분리 (liveness/readiness)
+2. `DONE` Probe 경로 분리 (liveness/readiness)
    - 대상: `infra/manifests/sample-apps/*/deployment.yaml`
    - 액션: `/actuator/health/liveness`, `/actuator/health/readiness`로 분리
 
-3. `TODO` k6 이미지 버전 고정 (`latest` 제거)
+3. `DONE` k6 이미지 버전 고정 (`latest` 제거)
    - 대상: `infra/manifests/k6/job.yaml`
-   - 액션: `grafana/k6:<version>` 명시
+   - 액션: `grafana/k6:1.7.1` 명시
 
 4. `TODO` 앱 DB Secret GitOps 편입 (SealedSecret)
    - 대상: `infra/manifests/sample-apps/*/`
