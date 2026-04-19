@@ -27,7 +27,7 @@
    - 대상: `infra/manifests/k6/job.yaml`
    - 액션: `grafana/k6:1.7.1` 명시
 
-4. `TODO` 앱 DB Secret GitOps 편입 (SealedSecret)
+4. `DONE` 앱 DB Secret GitOps 편입 (SealedSecret)
    - 대상: `infra/manifests/sample-apps/*/`
    - 액션: 서비스별 SealedSecret 추가 후 수동 시크릿 의존 제거
 
