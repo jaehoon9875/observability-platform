@@ -45,17 +45,29 @@
    - 대상: `infra/manifests/k6/*`
    - 액션: 시나리오별 ConfigMap 분리 및 실행 스크립트 정리
 
+8. `TODO` 앱 startupProbe 도입 (의존성 초기 지연 완충)
+   - 대상: `infra/manifests/sample-apps/*/deployment.yaml`
+   - 액션: 서비스별 startupProbe 추가로 초기 부팅 지연 시 불필요한 재시작 방지
+
+9. `TODO` 앱 readiness에 의존성(선택적) 반영 기준 정리
+   - 대상: `sample-apps/*/src/main/resources/application.yml`, `infra/manifests/sample-apps/*/deployment.yaml`
+   - 액션: DB/Kafka readiness 반영 범위(필수/선택)와 운영 기준 문서화
+
+10. `TODO` DB/Kafka 연결 재시도·타임아웃 기본값 표준화
+    - 대상: `sample-apps/*/src/main/resources/application.yml`
+    - 액션: 커넥션/클라이언트 타임아웃 및 재시도(backoff) 기본값 합의 후 공통 반영
+
 ## 우선순위 하
 
-8. `TODO` Alloy Loki 엔드포인트 관리 개선
+11. `TODO` Alloy Loki 엔드포인트 관리 개선
    - 대상: `infra/helm/alloy/custom-values.yaml`
    - 액션: 하드코딩 축소 및 변경 포인트 주석 강화
 
-9. `TODO` Tempo custom-values 의도 명시
+12. `TODO` Tempo custom-values 의도 명시
    - 대상: `infra/helm/tempo/custom-values.yaml`
    - 액션: 현재 의존 기본값(포트/스토리지) 문서화
 
-10. `TODO` ArgoCD AppProject 분리 검토
+13. `TODO` ArgoCD AppProject 분리 검토
     - 대상: `infra/argocd/**`
     - 액션: `monitoring-stack`, `obs-apps` 프로젝트 분리 여부 결정
 
@@ -65,4 +77,5 @@
 2. F2 Probe 분리
 3. F3 k6 버전 고정
 4. F5 sync-wave 적용
-5. F4/F6/F7/F8/F9/F10 순차 적용
+5. F8/F9/F10(앱 복원력) 우선 적용
+6. F4/F6/F7/F11/F12/F13 순차 적용
