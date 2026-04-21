@@ -3,6 +3,8 @@ kind: Application
 metadata:
   name: strimzi-operator
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
 spec:
   project: default
   # 주의: Operator 삭제 시 관리 중인 Kafka 클러스터에 영향 가능

@@ -33,7 +33,7 @@
 
 ## 우선순위 중
 
-5. `TODO` ArgoCD sync-wave로 의존 순서 강제
+5. `DONE` ArgoCD sync-wave로 의존 순서 강제
    - 대상: `infra/argocd/obs-apps/*.yaml`
    - 액션: operator(-1) → CR(0) → app(1) wave 지정
 

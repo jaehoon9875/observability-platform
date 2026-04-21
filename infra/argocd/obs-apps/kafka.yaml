@@ -3,6 +3,8 @@ kind: Application
 metadata:
   name: kafka
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
 spec:
   project: default
   # strimzi-operator Application이 먼저 sync된 후 적용해야 함 (Kafka CRD 의존)

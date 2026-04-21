@@ -4,6 +4,7 @@ metadata:
   name: mysql-operator
   namespace: argocd
   annotations:
+    argocd.argoproj.io/sync-wave: "-1"
     # ArgoCD v3.3+ 핵심: 서버 측에서 Diff를 계산하도록 위임하여 CRD 불일치 완벽 해소
     argocd.argoproj.io/compare-options: ServerSideDiff=true
 spec:
