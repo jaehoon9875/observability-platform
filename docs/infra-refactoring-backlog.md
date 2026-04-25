@@ -37,7 +37,7 @@
    - 대상: `infra/argocd/obs-apps/*.yaml`
    - 액션: operator(-1) → CR(0) → app(1) wave 지정
 
-6. `TODO` ServiceMonitor selector 표준 라벨로 통일
+6. `DONE` ServiceMonitor selector 표준 라벨로 통일
    - 대상: `infra/manifests/**/service-monitor.yaml`
    - 액션: `app.kubernetes.io/name` 기반 selector로 정리
 
@@ -78,4 +78,4 @@
 3. F3 k6 버전 고정
 4. F5 sync-wave 적용
 5. F8/F9/F10(앱 복원력) 우선 적용
-6. F4/F6/F7/F11/F12/F13 순차 적용
+6. F4/F7/F11/F12/F13 순차 적용
