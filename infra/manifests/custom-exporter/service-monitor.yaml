@@ -14,7 +14,7 @@ spec:
       - obs-apps
   selector:
     matchLabels:
-      app: kafka-lag-exporter
+      app.kubernetes.io/name: kafka-lag-exporter
   endpoints:
     - port: http
       path: /actuator/prometheus

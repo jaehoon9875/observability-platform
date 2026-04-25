@@ -13,10 +13,10 @@ spec:
   namespaceSelector:
     matchNames:
       - obs-apps
-  # service.yaml의 labels.app 값과 반드시 일치해야 함
+  # service.yaml의 labels.app.kubernetes.io/name 값과 반드시 일치해야 함
   selector:
     matchLabels:
-      app: payment-service
+      app.kubernetes.io/name: payment-service
   endpoints:
     - port: http
       path: /actuator/prometheus
